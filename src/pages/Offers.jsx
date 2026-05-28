@@ -11,6 +11,7 @@ import {
   FaRedo,
   FaBuilding,
   FaQrcode,
+  FaBars
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import React, { useState } from "react";
@@ -42,7 +43,7 @@ const rewardData = [
   },
 ];
 
-const OffersRewards = () => {
+const OffersRewards = ({ collapsed, setCollapsed }) => {
   const [activeTab, setActiveTab] = useState("offers"); // ✅ default Offers
   const [showModal, setShowModal] = useState(false);
   const [showOfferModal, setShowOfferModal] = useState(false);
@@ -125,85 +126,101 @@ const OffersRewards = () => {
         minHeight: "100vh",
       }}
     >
-      {/* Header */}
       <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "15px 30px",
-          backgroundColor: "#fff",
-          boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
-        }}
-      >
-        {/* Search bar */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            backgroundColor: "#f1f3f4",
-            borderRadius: "20px",
-            padding: "6px 12px",
-            width: "600px",
-            gap: "8px",
-          }}
-        >
-          <FaSearch style={{ color: "#555", fontSize: "14px" }} />
-          <input
-            type="text"
-            placeholder="Search..."
-            style={{
-              border: "none",
-              outline: "none",
-              background: "transparent",
-              width: "100%",
-              fontSize: "14px",
-              color: "#555",
-            }}
-          />
-        </div>
-
-        {/* Right side: bell + profile */}
-        <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-          <div style={{ position: "relative" }}>
-            <FaBell style={{ fontSize: "20px", color: "#1E3A5F" }} />
-            <span
-              style={{
-                position: "absolute",
-                top: "-2px",
-                right: "-2px",
-                width: "8px",
-                height: "8px",
-                backgroundColor: "red",
-                borderRadius: "50%",
-              }}
-            ></span>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <div
-              style={{
-                width: "32px",
-                height: "32px",
-                borderRadius: "50%",
-                backgroundColor: "#1E3A5F",
-                color: "#fff",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontWeight: "bold",
-              }}
-            >
-              A
-            </div>
-            <div style={{ textAlign: "left" }}>
-              <b>Admin</b>
-              <p style={{ margin: 0, fontSize: "12px", color: "#777" }}>
-                Super Admin
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+             style={{
+               display: "flex",
+               justifyContent: "space-between",
+               alignItems: "center",
+               padding: "15px 30px",
+               backgroundColor: "#fff",
+               boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+             }}
+           >
+             {/* Left side: Bars + Search */}
+             <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+               {/* Sidebar toggle (hamburger) */}
+               <button
+                 onClick={() => setCollapsed(!collapsed)}
+                 style={{
+                   background: "none",
+                   border: "none",
+                   cursor: "pointer",
+                   color: "#1E3A5F",
+                   fontSize: "22px",
+                 }}
+               >
+                 <FaBars />
+               </button>
+           
+               {/* Search bar */}
+               <div
+                 style={{
+                   display: "flex",
+                   alignItems: "center",
+                   backgroundColor: "#f1f3f4",
+                   borderRadius: "20px",
+                   padding: "6px 12px",
+                   width: "600px",
+                   gap: "8px",
+                 }}
+               >
+                 <FaSearch style={{ color: "#555", fontSize: "14px" }} />
+                 <input
+                   type="text"
+                   placeholder="Search..."
+                   style={{
+                     border: "none",
+                     outline: "none",
+                     background: "transparent",
+                     width: "100%",
+                     fontSize: "14px",
+                     color: "#555",
+                   }}
+                 />
+               </div>
+             </div>
+           
+             {/* Right side: bell + profile */}
+             <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+               <div style={{ position: "relative" }}>
+                 <FaBell style={{ fontSize: "20px", color: "#1E3A5F" }} />
+                 <span
+                   style={{
+                     position: "absolute",
+                     top: "-2px",
+                     right: "-2px",
+                     width: "8px",
+                     height: "8px",
+                     backgroundColor: "red",
+                     borderRadius: "50%",
+                   }}
+                 ></span>
+               </div>
+               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                 <div
+                   style={{
+                     width: "32px",
+                     height: "32px",
+                     borderRadius: "50%",
+                     backgroundColor: "#1E3A5F",
+                     color: "#fff",
+                     display: "flex",
+                     alignItems: "center",
+                     justifyContent: "center",
+                     fontWeight: "bold",
+                   }}
+                 >
+                   A
+                 </div>
+                 <div style={{ textAlign: "left" }}>
+                   <b>Admin</b>
+                   <p style={{ margin: 0, fontSize: "12px", color: "#777" }}>
+                     Super Admin
+                   </p>
+                 </div>
+               </div>
+             </div>
+           </div>
 
       {/* Page Heading */}
       <div style={{ padding: "20px", marginTop: "10px" }}>

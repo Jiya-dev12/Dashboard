@@ -8,9 +8,10 @@ import {
   FaEye,
   FaBell,
   FaSearch,
+  FaBars,
 } from "react-icons/fa";
 
-const Customer = () => {
+const Customer = ({ collapsed, setCollapsed }) => {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
 
   const customers = [
@@ -180,33 +181,48 @@ const Customer = () => {
           boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
         }}
       >
-        {/* Search bar with rounded icon */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            backgroundColor: "#f1f3f4",
-            borderRadius: "20px",
-            padding: "6px 12px",
-            width: "600px",
-            gap: "8px",
-          }}
-        >
-          <div>
-            <FaSearch style={{ color: "#555", fontSize: "14px" }} />
-          </div>
-          <input
-            type="text"
-            placeholder="Search..."
+        {/* Left side: Bars + Search */}
+        <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+          {/* Sidebar toggle (hamburger) */}
+          <button
+            onClick={() => setCollapsed(!collapsed)}
             style={{
+              background: "none",
               border: "none",
-              outline: "none",
-              background: "transparent",
-              width: "100%",
-              fontSize: "14px",
-              color: "#555",
+              cursor: "pointer",
+              color: "#1E3A5F",
+              fontSize: "22px",
             }}
-          />
+          >
+            <FaBars />
+          </button>
+
+          {/* Search bar */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              backgroundColor: "#f1f3f4",
+              borderRadius: "20px",
+              padding: "6px 12px",
+              width: "600px",
+              gap: "8px",
+            }}
+          >
+            <FaSearch style={{ color: "#555", fontSize: "14px" }} />
+            <input
+              type="text"
+              placeholder="Search..."
+              style={{
+                border: "none",
+                outline: "none",
+                background: "transparent",
+                width: "100%",
+                fontSize: "14px",
+                color: "#555",
+              }}
+            />
+          </div>
         </div>
 
         {/* Right side: bell + profile */}
@@ -406,7 +422,7 @@ const Customer = () => {
                     padding: "12px 15px",
                     fontSize: "16px",
                     color: "#333",
-                    textAlign: "right", // ✅ thoda right
+                    textAlign: "left", // ✅ thoda left
                   }}
                 >
                   <div
@@ -416,6 +432,7 @@ const Customer = () => {
                       gap: "10px",
                     }}
                   >
+                    {/* Avatar circle */}
                     <div
                       style={{
                         width: "36px",
@@ -432,8 +449,12 @@ const Customer = () => {
                     >
                       {c.name.charAt(0)}
                     </div>
+
+                    {/* Name + Email */}
                     <div style={{ display: "flex", flexDirection: "column" }}>
-                      <span style={{ fontWeight: "bold" }}>{c.name}</span>
+                      <span style={{ fontWeight: "bold", color: "#333" }}>
+                        {c.name}
+                      </span>
                       <span style={{ fontSize: "12px", color: "#777" }}>
                         {c.email}
                       </span>

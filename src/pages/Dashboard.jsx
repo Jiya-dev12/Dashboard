@@ -8,6 +8,7 @@ import {
   FaSearch,
   FaMapMarkerAlt,
   FaClock,
+  FaBars,
 } from "react-icons/fa";
 import {
   LineChart,
@@ -39,102 +40,114 @@ const pieData = [
 ];
 
 const COLORS = ["#1E3A5F", "#FF9800", "#9E9E9E"];
-const Dashboard = () => {
+
+const Dashboard = ({ collapsed, setCollapsed }) => {
   return (
-    <div
+   <div
       style={{
         fontFamily: "Arial, sans-serif",
         backgroundColor: "#f9f9f9",
         minHeight: "100vh",
       }}
     >
-      {/* Top Navigation */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "15px 30px",
-          backgroundColor: "#fff",
-          boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
-        }}
-      >
-        {/* Search bar with icon */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            backgroundColor: "#f1f3f4",
-            borderRadius: "20px",
-            padding: "6px 12px",
-            width: "600px",
-            gap: "8px",
-          }}
-        >
-          {/* Magnifier inside rounded square */}
-          <div>
-            <FaSearch style={{ color: "#555", fontSize: "14px" }} />
-          </div>
-          <input
-            type="text"
-            placeholder="Search..."
-            style={{
-              border: "none",
-              outline: "none",
-              background: "transparent",
-              width: "100%",
-              fontSize: "14px",
-              color: "#555",
-            }}
-          />
-        </div>
-        {/* Right side: bell + profile */}
-        <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-          {/* Bell with red dot */}
-          <div style={{ position: "relative" }}>
-            <FaBell style={{ fontSize: "20px", color: "#1E3A5F" }} />
-            <span
-              style={{
-                position: "absolute",
-                top: "-2px",
-                right: "-2px",
-                width: "8px",
-                height: "8px",
-                backgroundColor: "red",
-                borderRadius: "50%",
-              }}
-            ></span>
-          </div>
-          {/* Profile circle + text */}
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <div
-              style={{
-                width: "32px",
-                height: "32px",
-                borderRadius: "50%",
-                backgroundColor: "#1E3A5F",
-                color: "#fff",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontWeight: "bold",
-              }}
-            >
-              A
-            </div>
-            <div style={{ textAlign: "left" }}>
-              <b>Admin</b>
-              <p style={{ margin: 0, fontSize: "12px", color: "#777" }}>
-                Super Admin
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
+      {/* Header */}
+           <div
+             style={{
+               display: "flex",
+               justifyContent: "space-between",
+               alignItems: "center",
+               padding: "15px 30px",
+               backgroundColor: "#fff",
+               boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+             }}
+           >
+             {/* Left side: Bars + Search */}
+             <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+               {/* Sidebar toggle (hamburger) */}
+               <button
+                 onClick={() => setCollapsed(!collapsed)}
+                 style={{
+                   background: "none",
+                   border: "none",
+                   cursor: "pointer",
+                   color: "#1E3A5F",
+                   fontSize: "22px",
+                 }}
+               >
+                 <FaBars />
+               </button>
+     
+               {/* Search bar */}
+               <div
+                 style={{
+                   display: "flex",
+                   alignItems: "center",
+                   backgroundColor: "#f1f3f4",
+                   borderRadius: "20px",
+                   padding: "6px 12px",
+                   width: "600px",
+                   gap: "8px",
+                 }}
+               >
+                 <FaSearch style={{ color: "#555", fontSize: "14px" }} />
+                 <input
+                   type="text"
+                   placeholder="Search..."
+                   style={{
+                     border: "none",
+                     outline: "none",
+                     background: "transparent",
+                     width: "100%",
+                     fontSize: "14px",
+                     color: "#555",
+                   }}
+                 />
+               </div>
+             </div>
+     
+             {/* Right side: bell + profile */}
+             <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+               <div style={{ position: "relative" }}>
+                 <FaBell style={{ fontSize: "20px", color: "#1E3A5F" }} />
+                 <span
+                   style={{
+                     position: "absolute",
+                     top: "-2px",
+                     right: "-2px",
+                     width: "8px",
+                     height: "8px",
+                     backgroundColor: "red",
+                     borderRadius: "50%",
+                   }}
+                 ></span>
+               </div>
+               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                 <div
+                   style={{
+                     width: "32px",
+                     height: "32px",
+                     borderRadius: "50%",
+                     backgroundColor: "#1E3A5F",
+                     color: "#fff",
+                     display: "flex",
+                     alignItems: "center",
+                     justifyContent: "center",
+                     fontWeight: "bold",
+                   }}
+                 >
+                   A
+                 </div>
+                 <div style={{ textAlign: "left" }}>
+                   <b>Admin</b>
+                   <p style={{ margin: 0, fontSize: "12px", color: "#777" }}>
+                     Super Admin
+                   </p>
+                 </div>
+               </div>
+             </div>
+           </div>
       {/* Dashboard Heading */}
       <div style={{ padding: "20px" }}>
-       
         {/* ✅ padding kam kar diya */}
         <h1
           style={{ marginBottom: "8px", color: "#0E2A47", fontWeight: "bold" }}
@@ -142,7 +155,6 @@ const Dashboard = () => {
           Dashboard
         </h1>
         <p style={{ color: "#555", marginBottom: "10px" }}>
-        
           {/* ✅ marginBottom add kiya */}
           Welcome back! <b>Here’s what’s happening today.</b>
         </p>
@@ -357,7 +369,7 @@ const Dashboard = () => {
 
       {/* Charts Section */}
       <div
-        style={{ display: "flex", gap: "40px", padding: "10px 10px 30px 10px", }}
+        style={{ display: "flex", gap: "40px", padding: "10px 10px 30px 10px" }}
       >
         {/* Line Chart */}
         <div
@@ -455,7 +467,7 @@ const Dashboard = () => {
         style={{
           display: "flex",
           gap: "40px",
-           padding: "10px 10px 30px 10px",
+          padding: "10px 10px 30px 10px",
         }}
       >
         {/* Top Businesses by Visits */}

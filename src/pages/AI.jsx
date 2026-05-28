@@ -10,15 +10,15 @@ import {
   FaBolt,
   FaRobot, // chatbot icon
   FaComments,
+  FaBars,
 } from "react-icons/fa";
 import { FaMessage } from "react-icons/fa6";
 
 import {
   BarChart,
   Bar,
-   LineChart,
+  LineChart,
   Line,
-
   XAxis,
   YAxis,
   CartesianGrid,
@@ -54,7 +54,7 @@ const offerData = [
   { month: "Jun", shown: 2700, clicked: 2000, redeemed: 1300 },
 ];
 
-const AI = () => {
+const AI = ({ collapsed, setCollapsed }) => {
   const maxCount = Math.max(...queryData.map((q) => q.count));
   return (
     <div
@@ -64,7 +64,7 @@ const AI = () => {
         minHeight: "100vh",
       }}
     >
-      {/* Top Navigation */}
+      {/* Header */}
       <div
         style={{
           display: "flex",
@@ -75,31 +75,48 @@ const AI = () => {
           boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
         }}
       >
-        {/* Search bar */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            backgroundColor: "#f1f3f4",
-            borderRadius: "20px",
-            padding: "6px 12px",
-            width: "600px",
-            gap: "8px",
-          }}
-        >
-          <FaSearch style={{ color: "#555", fontSize: "14px" }} />
-          <input
-            type="text"
-            placeholder="Search..."
+        {/* Left side: Bars + Search */}
+        <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+          {/* Sidebar toggle (hamburger) */}
+          <button
+            onClick={() => setCollapsed(!collapsed)}
             style={{
+              background: "none",
               border: "none",
-              outline: "none",
-              background: "transparent",
-              width: "100%",
-              fontSize: "14px",
-              color: "#555",
+              cursor: "pointer",
+              color: "#1E3A5F",
+              fontSize: "22px",
             }}
-          />
+          >
+            <FaBars />
+          </button>
+
+          {/* Search bar */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              backgroundColor: "#f1f3f4",
+              borderRadius: "20px",
+              padding: "6px 12px",
+              width: "600px",
+              gap: "8px",
+            }}
+          >
+            <FaSearch style={{ color: "#555", fontSize: "14px" }} />
+            <input
+              type="text"
+              placeholder="Search..."
+              style={{
+                border: "none",
+                outline: "none",
+                background: "transparent",
+                width: "100%",
+                fontSize: "14px",
+                color: "#555",
+              }}
+            />
+          </div>
         </div>
 
         {/* Right side: bell + profile */}
@@ -146,10 +163,12 @@ const AI = () => {
 
       {/* Dashboard Heading */}
       <div style={{ padding: "30px" }}>
-        <h1 style={{ marginBottom: "10px", color: "#0E2A47", fontWeight:"bold" }}>
+        <h1
+          style={{ marginBottom: "10px", color: "#0E2A47", fontWeight: "bold" }}
+        >
           AI & Analytics
         </h1>
-        <p style={{ color:  "#717070", fontSize:"17px" }}>
+        <p style={{ color: "#717070", fontSize: "17px" }}>
           Monitoring chatbot performance & personalized offers.
         </p>
       </div>
@@ -161,6 +180,7 @@ const AI = () => {
           gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
           gap: "20px",
           padding: "20px",
+          marginTop: "-30px", // ✅ thoda upar shift
         }}
       >
         {/* Avg. Chatbot Response Time */}
@@ -171,7 +191,7 @@ const AI = () => {
             borderRadius: "14px",
             boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
             minHeight: "140px",
-             position: "relative",
+            position: "relative",
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
@@ -407,58 +427,58 @@ const AI = () => {
       </div>
 
       <div
-      style={{
-        flex: 1,
-        backgroundColor: "#fff",
-        borderRadius: "12px",
-        padding: "20px",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-        minHeight: 400,
-      }}
-    >
-      {/* Heading with icon */}
-      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-        <FaBolt style={{ color: "#1E3A5F", fontSize: "20px" }} />
-        <h3 style={{ margin: 0, color: "#0E2A47" }}>
-          AI Personalized Offers Performance
-        </h3>
-      </div>
-      <p style={{ color: "#777", marginBottom: "20px", fontSize: "13px" }}>
-        Offers Shown vs Clicked vs Redeemed
-      </p>
+        style={{
+          flex: 1,
+          backgroundColor: "#fff",
+          borderRadius: "12px",
+          padding: "20px",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+          minHeight: 400,
+        }}
+      >
+        {/* Heading with icon */}
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <FaBolt style={{ color: "#1E3A5F", fontSize: "20px" }} />
+          <h3 style={{ margin: 0, color: "#0E2A47" }}>
+            AI Personalized Offers Performance
+          </h3>
+        </div>
+        <p style={{ color: "#777", marginBottom: "20px", fontSize: "13px" }}>
+          Offers Shown vs Clicked vs Redeemed
+        </p>
 
-      {/* Line Chart */}
-      <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={offerData}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="month" />
-          <YAxis />
-          <Tooltip />
-          <Legend />
-          <Line
-            type="monotone"
-            dataKey="shown"
-            stroke="#1E3A5F"
-            strokeWidth={3}
-            dot={{ r: 4 }}
-          />
-          <Line
-            type="monotone"
-            dataKey="clicked"
-            stroke="#FF9800"
-            strokeWidth={3}
-            dot={{ r: 4 }}
-          />
-          <Line
-            type="monotone"
-            dataKey="redeemed"
-            stroke="#4CAF50"
-            strokeWidth={3}
-            dot={{ r: 4 }}
-          />
-        </LineChart>
-      </ResponsiveContainer>
-    </div>
+        {/* Line Chart */}
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={offerData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="month" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Line
+              type="monotone"
+              dataKey="shown"
+              stroke="#1E3A5F"
+              strokeWidth={3}
+              dot={{ r: 4 }}
+            />
+            <Line
+              type="monotone"
+              dataKey="clicked"
+              stroke="#FF9800"
+              strokeWidth={3}
+              dot={{ r: 4 }}
+            />
+            <Line
+              type="monotone"
+              dataKey="redeemed"
+              stroke="#4CAF50"
+              strokeWidth={3}
+              dot={{ r: 4 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 };
