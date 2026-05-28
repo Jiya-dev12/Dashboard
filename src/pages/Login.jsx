@@ -1,13 +1,24 @@
 import bgImg from "../assets/images/bg.png";
-import { Link } from "react-router-dom";
-// adjust path if needed
+import { Link, useNavigate } from "react-router-dom";
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import React, { useState } from "react";
 
 const Login = () => {
-   const [email, setEmail] = useState("admin@smartvisit.com"); // email field
-  const [showPassword, setShowPassword] = useState(false);    // password toggle
-  const [password, setPassword] = useState("");       
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!email || !password) {
+      alert("Please fill out these fields");
+      return;
+    }
+    // agar sab filled hai to AdminHome page par navigate karo
+    navigate("/AdminHome");
+  };
+
   return (
     <div
       style={{
@@ -16,10 +27,8 @@ const Login = () => {
         alignItems: "center",
         minHeight: "100vh",
         background: "#f0f2f5",
-        fontFamily: "Arial, sans-serif",
       }}
     >
-      {/* Card Container */}
       <div
         style={{
           display: "flex",
@@ -28,7 +37,6 @@ const Login = () => {
           borderRadius: "12px",
           overflow: "hidden",
           boxShadow: "0 8px 25px rgba(0,0,0,0.2)",
-          animation: "fadeIn 1s ease-in-out",
         }}
       >
         {/* Left Panel */}
@@ -48,15 +56,14 @@ const Login = () => {
             src={bgImg}
             alt="Login Illustration"
             style={{
-              width: "90%", // adjust width percentage
-              height: "auto", // keeps aspect ratio
-              maxHeight: "100%", // prevents overflow
+              width: "90%",
+              height: "auto",
+              maxHeight: "100%",
               objectFit: "contain",
             }}
           />
-
-          <h2 style={{ marginBottom: "10px" }}>Hello, Welcome!</h2>
-          <p style={{ marginBottom: "20px" }}>Don't have an account?</p>
+          <h2>Hello, Welcome!</h2>
+          <p>Don't have an account?</p>
           <Link to="/signup">
             <button
               style={{
@@ -74,7 +81,7 @@ const Login = () => {
           </Link>
         </div>
 
-        {/* Right Panel (Login Form) */}
+        {/* Right Panel */}
         <div
           style={{
             flex: 1,
@@ -85,129 +92,133 @@ const Login = () => {
             padding: "30px",
           }}
         >
-          <div style={{ width: "100%", maxWidth: "300px" }}>
+          <form
+            onSubmit={handleSubmit}
+            style={{ width: "100%", maxWidth: "300px" }}
+          >
             <h2
               style={{
                 color: "#0E2A47",
                 marginBottom: "10px",
                 fontWeight: "bold",
-                 textAlign: "center", 
+                textAlign: "center",
               }}
             >
-             Login
+              Login
             </h2>
             <p
-              style={{ color: "#777", marginBottom: "20px", fontSize: "13px" ,  textAlign: "center", }}
+              style={{
+                color: "#777",
+                marginBottom: "20px",
+                fontSize: "13px",
+                textAlign: "center",
+              }}
             >
               Login to access your admin panel
             </p>
 
-           
-        {/* Email */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            marginBottom: "12px",
-            border: "1px solid #ddd",
-            borderRadius: "6px",
-            padding: "8px",
-          }}
-        >
-          <FaEnvelope style={{ marginRight: "8px", color: "#1E3A5F" }} />
-          <input
-            type="text"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            style={{
-              border: "none",
-              outline: "none",
-              flex: 1,
-              fontSize: "13px",
-            }}
-          />
+            {/* Email */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                marginBottom: "12px",
+                border: "1px solid #ddd",
+                borderRadius: "6px",
+                padding: "8px",
+              }}
+            >
+              <FaEnvelope style={{ marginRight: "8px", color: "#1E3A5F" }} />
+              <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                style={{
+                  border: "none",
+                  outline: "none",
+                  flex: 1,
+                  fontSize: "13px",
+                }}
+              />
+            </div>
+
+            {/* Password */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                marginBottom: "8px",
+                border: "1px solid #ddd",
+                borderRadius: "6px",
+                padding: "8px",
+              }}
+            >
+              <FaLock style={{ marginRight: "8px", color: "#1E3A5F" }} />
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                style={{
+                  border: "none",
+                  outline: "none",
+                  flex: 1,
+                  fontSize: "13px",
+                }}
+              />
+              <span
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  cursor: "pointer",
+                  marginLeft: "8px",
+                  color: "#1FA2C9",
+                  fontSize: "16px",
+                }}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </span>
+            </div>
+
+            {/* Forgot Password */}
+            <div style={{ textAlign: "right", marginBottom: "15px" }}>
+              <p
+                style={{
+                  cursor: "pointer",
+                  color: "#012840",
+                  fontWeight: "500",
+                  fontSize: "12px",
+                  margin: 0,
+                }}
+              >
+                Forgot Password?
+              </p>
+            </div>
+
+            {/* Login Button */}
+            <button
+              type="submit"
+              style={{
+                padding: "10px",
+                width: "100%",
+                background: "linear-gradient(90deg, #1E3A5F, #1FA2C9)",
+                color: "white",
+                border: "none",
+                borderRadius: "25px",
+                cursor: "pointer",
+                fontWeight: "bold",
+                fontSize: "14px",
+                marginBottom: "15px",
+              }}
+            >
+              Login
+            </button>
+          </form>
         </div>
-
-        {/* Password */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            marginBottom: "8px",
-            border: "1px solid #ddd",
-            borderRadius: "6px",
-            padding: "8px",
-          }}
-        >
-          <FaLock style={{ marginRight: "8px", color: "#1E3A5F" }} />
-          <input
-            type={showPassword ? "text" : "password"}
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            style={{
-              border: "none",
-              outline: "none",
-              flex: 1,
-              fontSize: "13px",
-            }}
-          />
-          <span
-            onClick={() => setShowPassword(!showPassword)}
-            style={{
-              cursor: "pointer",
-              marginLeft: "8px",
-              color: "#1FA2C9",
-              fontSize: "16px",
-            }}
-          >
-            {showPassword ? <FaEyeSlash /> : <FaEye />}
-          </span>
-        </div>
-
-        {/* Forgot Password (Right Side) */}
-        <div style={{ textAlign: "right", marginBottom: "15px" }}>
-          <p
-            style={{
-              cursor: "pointer",
-              color: "#012840",
-              fontWeight: "500",
-              fontSize: "12px",
-              margin: 0,
-            }}
-          >
-            Forgot Password?
-          </p>
-        </div>
-
-        {/* Sign In Button */}
-        <Link to="/AdminHome">
-          <button
-            style={{
-              padding: "10px",
-              width: "100%",
-              background: "linear-gradient(90deg, #1E3A5F, #1FA2C9)",
-              color: "white",
-              border: "none",
-              borderRadius: "25px",
-              cursor: "pointer",
-              fontWeight: "bold",
-              fontSize: "14px",
-              marginBottom: "15px",
-            }}
-          >
-            Login
-          </button>
-        </Link>
-
-       
-         
-      
       </div>
     </div>
-    </div>
-   </div>
   );
 };
 
