@@ -43,7 +43,7 @@ const Customer = ({ collapsed, setCollapsed }) => {
         {
           shop: "Fresh Eats",
           date: "Mar 24, 2026",
-          rewards: "Buy 1 Get 1 Meal",
+          reward: "Buy 1 Get 1 Meal",
         },
         { shop: "Fresh Eats", date: "Mar 24, 2026" },
         { shop: "Coffee Palace", date: "Mar 22, 2026", reward: "Free Drink" },
@@ -62,7 +62,7 @@ const Customer = ({ collapsed, setCollapsed }) => {
       rewards: 5,
       joined: "Mar 2024",
       history: [
-        { shop: "Bella Salon", date: "Mar 22, 2026", rewards: "Free HairCut" },
+        { shop: "Bella Salon", date: "Mar 22, 2026", reward: "Free HairCut" },
         { shop: "Fresh Eats", date: "Mar 24, 2026" },
         { shop: "Coffee Palace", date: "Mar 22, 2026", reward: "Free Drink" },
         { shop: "The Gym Hub", date: "Mar 20, 2026" },
@@ -125,9 +125,9 @@ const Customer = ({ collapsed, setCollapsed }) => {
       joined: "Feb 2024",
       history: [
         {
-          shop: "Spice Garden",
+          shop: "Tea House",
           date: "Mar 24, 2026",
-          reward: "30% Off Next Visit",
+          reward: "Buy 1 Get 1 Free",
         },
         { shop: "Fresh Eats", date: "Mar 24, 2026" },
         { shop: "Coffee Palace", date: "Mar 22, 2026", reward: "Free Drink" },
@@ -147,9 +147,9 @@ const Customer = ({ collapsed, setCollapsed }) => {
       joined: "May 2024",
       history: [
         {
-          shop: "Book Nook",
+          shop: "Burger World",
           date: "Mar 18, 2026",
-          reward: "Free Book with 5 Visits",
+          reward: "Free Fries on 6th Visit",
         },
         { shop: "Fresh Eats", date: "Mar 24, 2026" },
         { shop: "Coffee Palace", date: "Mar 22, 2026", reward: "Free Drink" },

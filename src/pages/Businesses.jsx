@@ -17,12 +17,12 @@ const Businesses = ({ collapsed, setCollapsed }) => {
 
   const businessData = [
     ["Coffee Palace", "Café", "Downtown", "842", "4.8", "3", "Active"],
-    ["Fresh Eats", "Restaurant", "Midtown", "720", "4.5", "2", "Active"],
+    ["Fresh Eats", "Restaurant", "Midtown", "720", "4.5", "2", "Inactive"],
     ["The Gym Hub", "Fitness", "Uptown", "615", "4.7", "4", "Active"],
     ["Bella Salon", "Beauty", "Westside", "530", "4.6", "1", "Active"],
-    ["Book Nook", "Retail", "Eastside", "410", "4.4", "0", "Inactive"],
+    [ "Burger World", "Restaurant ", "Eastside", "410", "4.4", "0", "Inactive"],
     ["Tech Fix Pro", "Services", "Northside", "280", "4.2", "2", "Active"],
-    ["Spice Garden", "Restaurant", "Downtown", "660", "4.9", "3", "Active"],
+    ["Tea House", "Cafe", "Downtown", "660", "4.9", "3", "Active"],
     ["Glow Spa", "Beauty", "Midtown", "390", "4.3", "1", "Inactive"],
   ];
 
@@ -250,11 +250,11 @@ const Businesses = ({ collapsed, setCollapsed }) => {
                 backgroundColor: "#fff",
                 padding: "30px",
                 borderRadius: "12px",
-                width: "400px",
+                width: "500px",
                 boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
               }}
             >
-              <h2 style={{ marginBottom: "20px", color: "#0E2A47" }}>
+              <h2 style={{ marginBottom: "20px", color: "#0E2A47" ,fontSize:"24px"}}>
                 Add New Business
               </h2>
 
@@ -370,7 +370,7 @@ const Businesses = ({ collapsed, setCollapsed }) => {
               textAlign: "center",
             }}
           >
-            <h3 style={{ margin: 0, color: "green", fontWeight: "bold" }}>6</h3>
+            <h3 style={{ margin: 0, color: "green", fontWeight: "bold" }}>5</h3>
             <p style={{ margin: 0, color: "#717070" }}>Active</p>
           </div>
 
@@ -383,7 +383,7 @@ const Businesses = ({ collapsed, setCollapsed }) => {
               textAlign: "center",
             }}
           >
-            <h3 style={{ margin: 0, color: "red", fontWeight: "bold" }}>2</h3>
+            <h3 style={{ margin: 0, color: "red", fontWeight: "bold" }}>3</h3>
             <p style={{ margin: 0, color: "#717070" }}>Inactive</p>
           </div>
 
