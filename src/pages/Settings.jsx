@@ -13,8 +13,7 @@ import {
   FaPlus,
   FaEnvelope,
   FaKey,
-FaUserPlus,
-
+  FaUserPlus,
 } from "react-icons/fa";
 
 const admins = [
@@ -341,8 +340,8 @@ const Settings = ({ collapsed, setCollapsed }) => {
                   alignItems: "center",
                   gap: "10px",
                   color: "#0E2A47",
-                  fontSize:"22px", 
-                  fontWeight:"bold"
+                  fontSize: "22px",
+                  fontWeight: "bold",
                 }}
               >
                 <FaUserPlus style={{ color: "#1E3A5F", fontSize: "24px" }} />

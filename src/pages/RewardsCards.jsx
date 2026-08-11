@@ -21,6 +21,9 @@ import {
   FaBalanceScale,
   FaCalendarAlt,
   FaBuilding,
+  FaUpload,
+  FaImage,
+  FaRegImage,
 } from "react-icons/fa";
 import { FaPencil, FaStar } from "react-icons/fa6";
 
@@ -94,8 +97,12 @@ const RewardsCards = ({ collapsed, setCollapsed }) => {
   const [activeTab, setActiveTab] = useState("Business");
   const [filterStatus, setFilterStatus] = useState("All Cards");
   const [showGenerateModal, setShowGenerateModal] = useState(false);
+  const [cardType, setCardType] = useState("Point"); // ✅ default card type
   const [isActive, setIsActive] = useState(true); // ✅ toggle state
   const [cardStates, setCardStates] = useState([true, true, true]);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [cardData, setCardData] = useState(null); // ✅ selected card data
+  const [editingCardIndex, setEditingCardIndex] = useState(null);
 
   // ✅ toggle handler
   const handleToggle = (index) => {
@@ -270,31 +277,6 @@ const RewardsCards = ({ collapsed, setCollapsed }) => {
               />
               Business Cards
             </button>
-
-            <button
-              onClick={() => setActiveTab("Customer")}
-              style={{
-                backgroundColor:
-                  activeTab === "Customer" ? "#1E3A5F" : "#E0E7EF",
-                color: activeTab === "Customer" ? "#fff" : "#0E2A47",
-                border: "none",
-                borderRadius: "8px",
-                padding: "10px 20px",
-                fontWeight: "bold",
-                cursor: "pointer",
-                display: "flex", // ✅ flex layout
-                alignItems: "center", // ✅ vertical center
-                gap: "10px", // ✅ space between icon & text
-              }}
-            >
-              <FaWallet
-                style={{
-                  fontSize: "20px",
-                  color: activeTab === "Customer" ? "#fff" : "#0E2A47",
-                }}
-              />
-              Customer Cards
-            </button>
           </div>
         </div>
 
@@ -342,8 +324,6 @@ const RewardsCards = ({ collapsed, setCollapsed }) => {
                 }}
               />
             </div>
-     
-
           </div>
 
           {/* Dropdown */}
@@ -353,7 +333,6 @@ const RewardsCards = ({ collapsed, setCollapsed }) => {
             style={{
               border: "1px solid #ddd",
               padding: "16px 12px",
-              
             }}
           >
             <option>All Cards</option>
@@ -362,12 +341,10 @@ const RewardsCards = ({ collapsed, setCollapsed }) => {
           </select>
 
           {/* Generate Button → only for Business tab */}
-
           <div>
-            {/* Generate Button → only for Business tab */}
             {activeTab === "Business" && (
               <button
-                onClick={() => setShowGenerateModal(true)} // ✅ open modal
+                onClick={() => setShowGenerateModal(true)}
                 style={{
                   background: "linear-gradient(90deg, #1E3A5F, #1FA2C9)",
                   color: "#fff",
@@ -404,11 +381,13 @@ const RewardsCards = ({ collapsed, setCollapsed }) => {
                     padding: "20px",
                     borderRadius: "10px",
                     width: "500px",
+                    maxHeight: "80vh",
+                    overflowY: "auto",
                     boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-                    position: "relative", // ✅ for cross positioning
+                    position: "relative",
                   }}
                 >
-                  {/* Cross Icon (top-right) */}
+                  {/* Cross Icon */}
                   <span
                     onClick={() => setShowGenerateModal(false)}
                     style={{
@@ -440,8 +419,10 @@ const RewardsCards = ({ collapsed, setCollapsed }) => {
                   <select
                     style={{
                       width: "100%",
-                      padding: "8px",
-                      marginBottom: "12px",
+                      padding: "10px",
+                      marginBottom: "16px",
+                      borderRadius: "8px",
+                      border: "1px solid #ddd",
                     }}
                   >
                     <option>Select business</option>
@@ -452,14 +433,18 @@ const RewardsCards = ({ collapsed, setCollapsed }) => {
                   {/* Card Category */}
                   <label style={{ fontWeight: "bold" }}>Card Category</label>
                   <select
+                    value={cardType}
+                    onChange={(e) => setCardType(e.target.value)} // ✅ switch strategy
                     style={{
                       width: "100%",
-                      padding: "8px",
-                      marginBottom: "12px",
+                      padding: "10px",
+                      marginBottom: "16px",
+                      borderRadius: "8px",
+                      border: "1px solid #ddd",
                     }}
                   >
-                    <option>Amount Card</option>
-                    <option>Point Card</option>
+                    <option value="Amount">Amount Card</option>
+                    <option value="Point">Point Card</option>
                   </select>
 
                   {/* Label / Tag */}
@@ -469,63 +454,306 @@ const RewardsCards = ({ collapsed, setCollapsed }) => {
                     placeholder="e.g. Cashback, Discount, Free Item"
                     style={{
                       width: "100%",
-                      padding: "8px",
-                      marginBottom: "12px",
+                      padding: "10px",
+                      marginBottom: "16px",
+                      borderRadius: "8px",
+                      border: "1px solid #ddd",
                     }}
                   />
 
-                  {/* Visits Required */}
-                  <label style={{ fontWeight: "bold" }}>Visits Required</label>
-                  <input
-                    type="number"
-                    placeholder="e.g. 10"
-                    style={{
-                      width: "100%",
-                      padding: "8px",
-                      marginBottom: "12px",
-                    }}
-                  />
+                  {/* ✅ Conditional Strategy */}
+                  {cardType === "Point" ? (
+                    <>
+                      <label style={{ fontWeight: "bold" }}>
+                        Visits Required
+                      </label>
+                      <input
+                        type="number"
+                        placeholder="e.g. 10"
+                        style={{
+                          width: "100%",
+                          padding: "10px",
+                          marginBottom: "16px",
+                          borderRadius: "8px",
+                          border: "1px solid #ddd",
+                        }}
+                      />
 
-                  {/* Offer Description */}
-                  <label style={{ fontWeight: "bold" }}>
-                    Offer Description
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. 1 point per visit"
-                    style={{
-                      width: "100%",
-                      padding: "8px",
-                      marginBottom: "12px",
-                    }}
-                  />
+                      <label style={{ fontWeight: "bold" }}>
+                        Offer Description
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. 1 point per visit"
+                        style={{
+                          width: "100%",
+                          padding: "10px",
+                          marginBottom: "16px",
+                          borderRadius: "8px",
+                          border: "1px solid #ddd",
+                        }}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <label style={{ fontWeight: "bold" }}>Earned</label>
+                      <input
+                        type="number"
+                        placeholder="e.g. 15"
+                        style={{
+                          width: "100%",
+                          padding: "10px",
+                          marginBottom: "16px",
+                          borderRadius: "8px",
+                          border: "1px solid #ddd",
+                        }}
+                      />
+
+                      <label style={{ fontWeight: "bold" }}>Redeemed</label>
+                      <input
+                        type="number"
+                        placeholder="e.g. 0"
+                        style={{
+                          width: "100%",
+                          padding: "10px",
+                          marginBottom: "16px",
+                          borderRadius: "8px",
+                          border: "1px solid #ddd",
+                        }}
+                      />
+
+                      <label style={{ fontWeight: "bold" }}>Balance</label>
+                      <input
+                        type="number"
+                        placeholder="e.g. 0"
+                        style={{
+                          width: "100%",
+                          padding: "10px",
+                          marginBottom: "16px",
+                          borderRadius: "8px",
+                          border: "1px solid #ddd",
+                        }}
+                      />
+                    </>
+                  )}
 
                   {/* Expiry Date */}
                   <label style={{ fontWeight: "bold" }}>Expiry Date</label>
                   <input
                     type="date"
-                    placeholder="dd/mm/yyyy"
                     style={{
                       width: "100%",
-                      padding: "8px",
+                      padding: "10px",
                       marginBottom: "20px",
-                      borderRadius: "6px",
+                      borderRadius: "8px",
                       border: "1px solid #ddd",
                     }}
                   />
 
-                  {/* Only Generate Button */}
+                  {/* Background Color Options */}
+                  <label style={{ fontWeight: "bold" }}>Background Color</label>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "10px",
+                      marginBottom: "20px",
+                    }}
+                  >
+                    {[
+                      "#0E2A47",
+                      "#1FA2C9",
+                      "#008080",
+                      "#28a745",
+                      "#ff9800",
+                      "#673ab7",
+                      "#fff",
+                    ].map((color, index) => (
+                      <div
+                        key={index}
+                        onClick={() => setSelectedColor(color)} // ✅ set selected color
+                        style={{
+                          width: "30px",
+                          height: "30px",
+                          borderRadius: "50%",
+                          backgroundColor: color,
+                          border: "1px solid #ddd",
+                          cursor: "pointer",
+                        }}
+                      ></div>
+                    ))}
+
+                    {/* Custom Color Picker */}
+                    <input
+                      type="color"
+                      onChange={(e) => setSelectedColor(e.target.value)} // ✅ business chooses custom color
+                      style={{
+                        width: "30px",
+                        height: "30px",
+                        border: "none",
+                        cursor: "pointer",
+                        padding: 0,
+                      }}
+                    />
+                  </div>
+
+                  {/* Logo Section */}
+                  <div style={{ marginBottom: "20px" }}>
+                    {/* Heading */}
+                    <label
+                      style={{
+                        fontWeight: "bold",
+                        display: "block",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      Logo
+                    </label>
+
+                    {/* Container for image + upload button */}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "20px",
+                      }}
+                    >
+                      {/* Image Placeholder */}
+                      <div
+                        style={{
+                          width: "60px",
+                          height: "60px",
+                          borderRadius: "5%",
+                          border: "2px solid #ddd",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: "24px",
+                          color: "#777",
+                          backgroundColor: "#f9f9f9",
+                        }}
+                      >
+                        <FaImage /> {/* ✅ Image icon inside round border */}
+                      </div>
+
+                      {/* Upload Button */}
+                      <div
+                        style={{
+                          border: "2px solid #ddd",
+                          borderRadius: "8px",
+                          padding: "10px 10px",
+                          cursor: "pointer",
+                          backgroundColor: "#f9f9f9",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                        }}
+                      >
+                        <FaUpload style={{ color: "#1E3A5F" }} />{" "}
+                        {/* ✅ Upload icon */}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          style={{ display: "none" }}
+                          id="logoUpload"
+                        />
+                        <label
+                          htmlFor="logoUpload"
+                          style={{
+                            cursor: "pointer",
+                            fontWeight: "bold",
+                            color: "#1E3A5F",
+                          }}
+                        >
+                          Upload Logo
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Picture Section */}
+                  <div style={{ marginBottom: "20px" }}>
+                    {/* Heading */}
+                    <label
+                      style={{
+                        fontWeight: "bold",
+                        display: "block",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      Picture
+                    </label>
+
+                    {/* Container for icon + upload button */}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "20px",
+                      }}
+                    >
+                      {/* Image Placeholder */}
+                      <div
+                        style={{
+                          width: "70px",
+                          height: "60px",
+                          border: "2px solid #ddd",
+                          borderRadius: "8px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: "24px",
+                          color: "#777",
+                          backgroundColor: "#f9f9f9",
+                        }}
+                      >
+                        <FaRegImage /> {/* ✅ Picture icon inside box */}
+                      </div>
+
+                      {/* Upload Button */}
+                      <div
+                        style={{
+                          border: "2px solid #ddd",
+                          borderRadius: "8px",
+                          padding: "10px 10px",
+                          cursor: "pointer",
+                          backgroundColor: "#f9f9f9",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                        }}
+                      >
+                        <FaUpload style={{ color: "#1E3A5F" }} />{" "}
+                        {/* ✅ Upload icon */}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          style={{ display: "none" }}
+                          id="pictureUpload"
+                        />
+                        <label
+                          htmlFor="pictureUpload"
+                          style={{
+                            cursor: "pointer",
+                            fontWeight: "bold",
+                            color: "#1E3A5F",
+                          }}
+                        >
+                          Upload Picture
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Generate Button */}
                   <div style={{ display: "flex", justifyContent: "flex-end" }}>
                     <button
                       style={{
                         background: "linear-gradient(90deg, #1E3A5F, #1FA2C9)",
                         color: "#fff",
-                        padding: "9px 177px",
+                        padding: "9px 167px",
                         borderRadius: "6px",
                         border: "none",
                         cursor: "pointer",
-                        textAlign: "center",
-                        alignItems: "center",
                       }}
                     >
                       Generate Card
@@ -685,13 +913,13 @@ const RewardsCards = ({ collapsed, setCollapsed }) => {
       {/* Content Area */}
       {activeTab === "Business" && (
         <div
-         style={{
-      display: "grid",
-      gridTemplateColumns: "repeat(3, 1fr)", 
-      gap: "10px", // ✅ kam gap
-      padding: "20px", // ✅ kam padding
-      overflowX: "hidden", 
-    }}
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: "10px", // ✅ kam gap
+            padding: "20px", // ✅ kam padding
+            overflowX: "hidden",
+          }}
         >
           {/* cards 1 */}
           {(filterStatus === "All Cards" || filterStatus === "Amount Card") && (
@@ -1014,7 +1242,6 @@ const RewardsCards = ({ collapsed, setCollapsed }) => {
                       gap: "12px",
                     }}
                   >
-                    {/* Edit Icon */}
                     <div
                       style={{
                         width: "32px",
@@ -1026,11 +1253,10 @@ const RewardsCards = ({ collapsed, setCollapsed }) => {
                         justifyContent: "center",
                         cursor: "pointer",
                       }}
+                      onClick={() => setEditingCardIndex(4)} // ✅ index set karo
                     >
                       <FaPencil style={{ color: "#fff" }} />
                     </div>
-
-                    {/* Delete Icon */}
                     <div
                       style={{
                         width: "32px",
@@ -1042,10 +1268,266 @@ const RewardsCards = ({ collapsed, setCollapsed }) => {
                         justifyContent: "center",
                         cursor: "pointer",
                       }}
+                      onClick={() => handleDelete(card)}
                     >
-                      <FaTrash style={{ color: "red" }} />
+                      <FaTrash style={{ color: "#fff" }} />
                     </div>
                   </div>
+                  {editingCardIndex === 4 && ( // ✅ Amount Card ka index
+                    <div
+                      style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: "rgba(0,0,0,0.6)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        zIndex: 1000,
+                      }}
+                    >
+                      <div
+                        style={{
+                          background: "#fff",
+                          padding: "25px",
+                          borderRadius: "12px",
+                          width: "450px",
+                          maxHeight: "80vh",
+                          overflowY: "auto",
+                          boxShadow: "0 6px 20px rgba(0,0,0,0.3)",
+                        }}
+                      >
+                        <h3 style={{ marginBottom: "20px", color: "#0E2A47" }}>
+                          Edit Reward Card
+                        </h3>
+
+                        {/* Label */}
+                        <label>Label / Tag</label>
+                        <input
+                          type="text"
+                          defaultValue="Cashback"
+                          style={{
+                            width: "100%",
+                            padding: "8px",
+                            marginBottom: "12px",
+                            borderRadius: "6px",
+                            border: "1px solid #ccc",
+                          }}
+                        />
+
+                        {/* ✅ Reward Strategy for Amount Card */}
+                        <label>Earned</label>
+                        <input
+                          type="number"
+                          defaultValue={15}
+                          style={{
+                            width: "100%",
+                            padding: "8px",
+                            marginBottom: "12px",
+                            borderRadius: "6px",
+                            border: "1px solid #ccc",
+                          }}
+                        />
+
+                        <label>Redeemed</label>
+                        <input
+                          type="number"
+                          defaultValue={0}
+                          style={{
+                            width: "100%",
+                            padding: "8px",
+                            marginBottom: "12px",
+                            borderRadius: "6px",
+                            border: "1px solid #ccc",
+                          }}
+                        />
+
+                        <label>Balance</label>
+                        <input
+                          type="number"
+                          defaultValue={0}
+                          style={{
+                            width: "100%",
+                            padding: "8px",
+                            marginBottom: "20px",
+                            borderRadius: "6px",
+                            border: "1px solid #ccc",
+                          }}
+                        />
+
+                        {/* Expiry Date */}
+                        <label>Expiry Date</label>
+                        <input
+                          type="date"
+                          defaultValue="2026-09-30"
+                          style={{
+                            width: "100%",
+                            padding: "8px",
+                            marginBottom: "20px",
+                            borderRadius: "6px",
+                            border: "1px solid #ccc",
+                          }}
+                        />
+
+                        {/* Background Color */}
+                        <label>Background Color</label>
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "10px",
+                            marginBottom: "20px",
+                            flexWrap: "wrap",
+                          }}
+                        >
+                          {[
+                            "darkblue",
+                            "teal",
+                            "green",
+                            "orange",
+                            "purple",
+                            "white",
+                            "black",
+                          ].map((color) => (
+                            <div
+                              key={color}
+                              style={{
+                                width: "30px",
+                                height: "30px",
+                                borderRadius: "50%",
+                                backgroundColor: color,
+                                border: "1px solid #ccc",
+                                cursor: "pointer",
+                              }}
+                            ></div>
+                          ))}
+                          {/* Square custom color picker */}
+                          <input
+                            type="color"
+                            style={{
+                              width: "35px",
+                              height: "35px",
+                              border: "1px solid #aaa",
+                              borderRadius: "4px",
+                              cursor: "pointer",
+                            }}
+                          />
+                        </div>
+
+                        {/* Logo Upload */}
+                        <label>Logo</label>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                            marginBottom: "20px",
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: "60px",
+                              height: "60px",
+                              borderRadius: "5%",
+                              border: "2px solid #aaa",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <FaImage
+                              style={{ color: "#aaa", fontSize: "24px" }}
+                            />
+                          </div>
+                          <button
+                            style={{
+                              padding: "6px 12px",
+                              borderRadius: "5px",
+                              border: "1px solid #ccc",
+                              background: "#f5f5f5",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Upload Logo
+                          </button>
+                        </div>
+
+                        {/* Picture Upload */}
+                        <label>Picture</label>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                            marginBottom: "20px",
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: "60px",
+                              height: "60px",
+                              borderRadius: "5%",
+                              border: "2px solid #aaa",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <FaImage
+                              style={{ color: "#aaa", fontSize: "24px" }}
+                            />
+                          </div>
+                          <button
+                            style={{
+                              padding: "6px 12px",
+                              borderRadius: "6px",
+                              border: "1px solid #ccc",
+                              background: "#f5f5f5",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Upload Picture
+                          </button>
+                        </div>
+
+                        {/* Buttons */}
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            gap: "12px",
+                          }}
+                        >
+                          <button
+                            onClick={() => setEditingCardIndex(null)}
+                            style={{
+                              padding: "8px 16px",
+                              borderRadius: "6px",
+                              border: "none",
+                              background: "#ccc",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={() => handleSave(card)}
+                            style={{
+                              padding: "8px 16px",
+                              borderRadius: "6px",
+                              border: "none",
+                              background: "#1FA2C9",
+                              color: "#fff",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Save Changes
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -1337,7 +1819,6 @@ const RewardsCards = ({ collapsed, setCollapsed }) => {
                       gap: "12px",
                     }}
                   >
-                    {/* Edit Icon */}
                     <div
                       style={{
                         width: "32px",
@@ -1349,11 +1830,10 @@ const RewardsCards = ({ collapsed, setCollapsed }) => {
                         justifyContent: "center",
                         cursor: "pointer",
                       }}
+                      onClick={() => setEditingCardIndex(1)} // ✅ index set karo
                     >
                       <FaPencil style={{ color: "#fff" }} />
                     </div>
-
-                    {/* Delete Icon */}
                     <div
                       style={{
                         width: "32px",
@@ -1365,10 +1845,254 @@ const RewardsCards = ({ collapsed, setCollapsed }) => {
                         justifyContent: "center",
                         cursor: "pointer",
                       }}
+                      onClick={() => handleDelete(card)}
                     >
-                      <FaTrash style={{ color: "red" }} />
+                      <FaTrash style={{ color: "#fff" }} />
                     </div>
                   </div>
+
+                  {editingCardIndex === 1 && (
+                    <div
+                      style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: "rgba(0,0,0,0.6)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        zIndex: 1000,
+                      }}
+                    >
+                      <div
+                        style={{
+                          background: "#fff",
+                          padding: "25px",
+                          borderRadius: "12px",
+                          width: "450px",
+                          maxHeight: "80vh", // ✅ scroll limit
+                          overflowY: "auto", // ✅ scroll enable
+                          boxShadow: "0 6px 20px rgba(0,0,0,0.3)",
+                        }}
+                      >
+                        <h3 style={{ marginBottom: "20px", color: "#0E2A47" }}>
+                          Edit Reward Card
+                        </h3>
+
+                        {/* Label */}
+                        <label>Label / Tag</label>
+                        <input
+                          type="text"
+                          defaultValue="Free Item"
+                          style={{
+                            width: "100%",
+                            padding: "8px",
+                            marginBottom: "12px",
+                            borderRadius: "6px",
+                            border: "1px solid #ccc",
+                          }}
+                        />
+
+                        {/* Visits */}
+                        <label>Visits Required</label>
+                        <input
+                          type="number"
+                          defaultValue={10}
+                          style={{
+                            width: "100%",
+                            padding: "8px",
+                            marginBottom: "12px",
+                            borderRadius: "6px",
+                            border: "1px solid #ccc",
+                          }}
+                        />
+
+                        {/* Offer */}
+                        <label>Offer Description</label>
+                        <input
+                          type="text"
+                          defaultValue="1 point per visit"
+                          style={{
+                            width: "100%",
+                            padding: "8px",
+                            marginBottom: "12px",
+                            borderRadius: "6px",
+                            border: "1px solid #ccc",
+                          }}
+                        />
+
+                        {/* Expiry */}
+                        <label>Expiry Date</label>
+                        <input
+                          type="date"
+                          defaultValue="2026-09-30"
+                          style={{
+                            width: "100%",
+                            padding: "8px",
+                            marginBottom: "20px",
+                            borderRadius: "6px",
+                            border: "1px solid #ccc",
+                          }}
+                        />
+
+                        {/* Background Color */}
+                        <label>Background Color</label>
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "10px",
+                            marginBottom: "20px",
+                            flexWrap: "wrap",
+                          }}
+                        >
+                          {[
+                            "darkblue",
+                            "teal",
+                            "green",
+                            "orange",
+                            "purple",
+                            "white",
+                            "black",
+                          ].map((color) => (
+                            <div
+                              key={color}
+                              style={{
+                                width: "30px",
+                                height: "30px",
+                                borderRadius: "50%",
+                                backgroundColor: color,
+                                border: "1px solid #ccc",
+                                cursor: "pointer",
+                              }}
+                            ></div>
+                          ))}
+                          {/* ✅ Square custom color picker */}
+                          <input
+                            type="color"
+                            onChange={(e) =>
+                              console.log("Custom color:", e.target.value)
+                            }
+                            style={{
+                              width: "35px",
+                              height: "35px",
+                              border: "1px solid #aaa",
+                              borderRadius: "4px",
+                              cursor: "pointer",
+                            }}
+                          />
+                        </div>
+
+                        {/* Logo Upload */}
+                        <label>Logo</label>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                            marginBottom: "20px",
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: "50px",
+                              height: "50px",
+                              borderRadius: "5%",
+                              border: "2px solid #aaa",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <FaImage style={{ color: "#aaa" }} />
+                          </div>
+                          <button
+                            style={{
+                              padding: "6px 12px",
+                              borderRadius: "5px",
+                              border: "1px solid #ccc",
+                              background: "#f5f5f5",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Upload Logo
+                          </button>
+                        </div>
+
+                        {/* Picture Upload */}
+                        <label>Picture</label>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                            marginBottom: "20px",
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: "50px",
+                              height: "50px",
+                              borderRadius: "5%",
+                              border: "2px solid #aaa",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <FaImage style={{ color: "#aaa" }} />
+                          </div>
+                          <button
+                            style={{
+                              padding: "6px 12px",
+                              borderRadius: "5px",
+                              border: "1px solid #ccc",
+                              background: "#f5f5f5",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Upload Picture
+                          </button>
+                        </div>
+
+                        {/* Buttons */}
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            gap: "12px",
+                          }}
+                        >
+                          <button
+                            onClick={() => setEditingCardIndex(null)}
+                            style={{
+                              padding: "8px 16px",
+                              borderRadius: "6px",
+                              border: "none",
+                              background: "#ccc",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={() => handleSave(card)}
+                            style={{
+                              padding: "8px 16px",
+                              borderRadius: "6px",
+                              border: "none",
+                              background: "#1FA2C9",
+                              color: "#fff",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Save Changes
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -1695,7 +2419,6 @@ const RewardsCards = ({ collapsed, setCollapsed }) => {
                       gap: "12px",
                     }}
                   >
-                    {/* Edit Icon */}
                     <div
                       style={{
                         width: "32px",
@@ -1707,11 +2430,10 @@ const RewardsCards = ({ collapsed, setCollapsed }) => {
                         justifyContent: "center",
                         cursor: "pointer",
                       }}
+                      onClick={() => setEditingCardIndex(5)} // ✅ index set karo
                     >
                       <FaPencil style={{ color: "#fff" }} />
                     </div>
-
-                    {/* Delete Icon */}
                     <div
                       style={{
                         width: "32px",
@@ -1723,16 +2445,272 @@ const RewardsCards = ({ collapsed, setCollapsed }) => {
                         justifyContent: "center",
                         cursor: "pointer",
                       }}
+                      onClick={() => handleDelete(card)}
                     >
-                      <FaTrash style={{ color: "red" }} />
+                      <FaTrash style={{ color: "#fff" }} />
                     </div>
                   </div>
+                  {editingCardIndex === 5 && ( // ✅ Amount Card ka index
+                    <div
+                      style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: "rgba(0,0,0,0.6)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        zIndex: 1000,
+                      }}
+                    >
+                      <div
+                        style={{
+                          background: "#fff",
+                          padding: "25px",
+                          borderRadius: "12px",
+                          width: "450px",
+                          maxHeight: "80vh",
+                          overflowY: "auto",
+                          boxShadow: "0 6px 20px rgba(0,0,0,0.3)",
+                        }}
+                      >
+                        <h3 style={{ marginBottom: "20px", color: "#0E2A47" }}>
+                          Edit Reward Card
+                        </h3>
+
+                        {/* Label */}
+                        <label>Label / Tag</label>
+                        <input
+                          type="text"
+                          defaultValue="Cashback"
+                          style={{
+                            width: "100%",
+                            padding: "8px",
+                            marginBottom: "12px",
+                            borderRadius: "6px",
+                            border: "1px solid #ccc",
+                          }}
+                        />
+
+                        {/* ✅ Reward Strategy for Amount Card */}
+                        <label>Earned</label>
+                        <input
+                          type="number"
+                          defaultValue={15}
+                          style={{
+                            width: "100%",
+                            padding: "8px",
+                            marginBottom: "12px",
+                            borderRadius: "6px",
+                            border: "1px solid #ccc",
+                          }}
+                        />
+
+                        <label>Redeemed</label>
+                        <input
+                          type="number"
+                          defaultValue={0}
+                          style={{
+                            width: "100%",
+                            padding: "8px",
+                            marginBottom: "12px",
+                            borderRadius: "6px",
+                            border: "1px solid #ccc",
+                          }}
+                        />
+
+                        <label>Balance</label>
+                        <input
+                          type="number"
+                          defaultValue={0}
+                          style={{
+                            width: "100%",
+                            padding: "8px",
+                            marginBottom: "20px",
+                            borderRadius: "6px",
+                            border: "1px solid #ccc",
+                          }}
+                        />
+
+                        {/* Expiry Date */}
+                        <label>Expiry Date</label>
+                        <input
+                          type="date"
+                          defaultValue="2026-09-30"
+                          style={{
+                            width: "100%",
+                            padding: "8px",
+                            marginBottom: "20px",
+                            borderRadius: "6px",
+                            border: "1px solid #ccc",
+                          }}
+                        />
+
+                        {/* Background Color */}
+                        <label>Background Color</label>
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "10px",
+                            marginBottom: "20px",
+                            flexWrap: "wrap",
+                          }}
+                        >
+                          {[
+                            "darkblue",
+                            "teal",
+                            "green",
+                            "orange",
+                            "purple",
+                            "white",
+                            "black",
+                          ].map((color) => (
+                            <div
+                              key={color}
+                              style={{
+                                width: "30px",
+                                height: "30px",
+                                borderRadius: "50%",
+                                backgroundColor: color,
+                                border: "1px solid #ccc",
+                                cursor: "pointer",
+                              }}
+                            ></div>
+                          ))}
+                          {/* Square custom color picker */}
+                          <input
+                            type="color"
+                            style={{
+                              width: "35px",
+                              height: "35px",
+                              border: "1px solid #aaa",
+                              borderRadius: "4px",
+                              cursor: "pointer",
+                            }}
+                          />
+                        </div>
+
+                        {/* Logo Upload */}
+                        <label>Logo</label>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                            marginBottom: "20px",
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: "60px",
+                              height: "60px",
+                              borderRadius: "5%",
+                              border: "2px solid #aaa",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <FaImage
+                              style={{ color: "#aaa", fontSize: "24px" }}
+                            />
+                          </div>
+                          <button
+                            style={{
+                              padding: "6px 12px",
+                              borderRadius: "5px",
+                              border: "1px solid #ccc",
+                              background: "#f5f5f5",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Upload Logo
+                          </button>
+                        </div>
+
+                        {/* Picture Upload */}
+                        <label>Picture</label>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                            marginBottom: "20px",
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: "60px",
+                              height: "60px",
+                              borderRadius: "5%",
+                              border: "2px solid #aaa",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <FaImage
+                              style={{ color: "#aaa", fontSize: "24px" }}
+                            />
+                          </div>
+                          <button
+                            style={{
+                              padding: "6px 12px",
+                              borderRadius: "6px",
+                              border: "1px solid #ccc",
+                              background: "#f5f5f5",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Upload Picture
+                          </button>
+                        </div>
+
+                        {/* Buttons */}
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            gap: "12px",
+                          }}
+                        >
+                          <button
+                            onClick={() => setEditingCardIndex(null)}
+                            style={{
+                              padding: "8px 16px",
+                              borderRadius: "6px",
+                              border: "none",
+                              background: "#ccc",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={() => handleSave(card)}
+                            style={{
+                              padding: "8px 16px",
+                              borderRadius: "6px",
+                              border: "none",
+                              background: "#1FA2C9",
+                              color: "#fff",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Save Changes
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
           )}
 
-         {/* cards 4 */}
+          {/* cards 4 */}
           {(filterStatus === "All Cards" || filterStatus === "Point Card") && (
             <div
               style={{
@@ -2018,7 +2996,6 @@ const RewardsCards = ({ collapsed, setCollapsed }) => {
                       gap: "12px",
                     }}
                   >
-                    {/* Edit Icon */}
                     <div
                       style={{
                         width: "32px",
@@ -2030,11 +3007,10 @@ const RewardsCards = ({ collapsed, setCollapsed }) => {
                         justifyContent: "center",
                         cursor: "pointer",
                       }}
+                      onClick={() => setEditingCardIndex(2)} // ✅ index set karo
                     >
                       <FaPencil style={{ color: "#fff" }} />
                     </div>
-
-                    {/* Delete Icon */}
                     <div
                       style={{
                         width: "32px",
@@ -2046,15 +3022,272 @@ const RewardsCards = ({ collapsed, setCollapsed }) => {
                         justifyContent: "center",
                         cursor: "pointer",
                       }}
+                      onClick={() => handleDelete(card)}
                     >
-                      <FaTrash style={{ color: "red" }} />
+                      <FaTrash style={{ color: "#fff" }} />
                     </div>
                   </div>
+
+                  {editingCardIndex === 2 && (
+                    <div
+                      style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: "rgba(0,0,0,0.6)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        zIndex: 1000,
+                      }}
+                    >
+                      <div
+                        style={{
+                          background: "#fff",
+                          padding: "25px",
+                          borderRadius: "12px",
+                          width: "450px",
+                          maxHeight: "80vh", // ✅ scroll limit
+                          overflowY: "auto", // ✅ scroll enable
+                          boxShadow: "0 6px 20px rgba(0,0,0,0.3)",
+                        }}
+                      >
+                        <h3 style={{ marginBottom: "20px", color: "#0E2A47" }}>
+                          Edit Reward Card
+                        </h3>
+
+                        {/* Business */}
+                        <label>Business</label>
+                        <input
+                          type="text"
+                          defaultValue="Slice House Pizzeria"
+                          style={{
+                            width: "100%",
+                            padding: "8px",
+                            marginBottom: "12px",
+                            borderRadius: "6px",
+                            border: "1px solid #ccc",
+                          }}
+                        />
+
+                        {/* Label */}
+                        <label>Label / Tag</label>
+                        <input
+                          type="text"
+                          defaultValue="Free Item"
+                          style={{
+                            width: "100%",
+                            padding: "8px",
+                            marginBottom: "12px",
+                            borderRadius: "6px",
+                            border: "1px solid #ccc",
+                          }}
+                        />
+
+                        {/* Visits */}
+                        <label>Visits Required</label>
+                        <input
+                          type="number"
+                          defaultValue={10}
+                          style={{
+                            width: "100%",
+                            padding: "8px",
+                            marginBottom: "12px",
+                            borderRadius: "6px",
+                            border: "1px solid #ccc",
+                          }}
+                        />
+
+                        {/* Offer */}
+                        <label>Offer Description</label>
+                        <input
+                          type="text"
+                          defaultValue="1 point per visit"
+                          style={{
+                            width: "100%",
+                            padding: "8px",
+                            marginBottom: "12px",
+                            borderRadius: "6px",
+                            border: "1px solid #ccc",
+                          }}
+                        />
+
+                        {/* Expiry */}
+                        <label>Expiry Date</label>
+                        <input
+                          type="date"
+                          defaultValue="2026-09-30"
+                          style={{
+                            width: "100%",
+                            padding: "8px",
+                            marginBottom: "20px",
+                            borderRadius: "6px",
+                            border: "1px solid #ccc",
+                          }}
+                        />
+
+                        {/* Background Color */}
+                        <label>Background Color</label>
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "10px",
+                            marginBottom: "20px",
+                            flexWrap: "wrap",
+                          }}
+                        >
+                          {[
+                            "darkblue",
+                            "teal",
+                            "green",
+                            "orange",
+                            "purple",
+                            "white",
+                            "black",
+                          ].map((color) => (
+                            <div
+                              key={color}
+                              style={{
+                                width: "30px",
+                                height: "30px",
+                                borderRadius: "50%",
+                                backgroundColor: color,
+                                border: "1px solid #ccc",
+                                cursor: "pointer",
+                              }}
+                            ></div>
+                          ))}
+                          {/* ✅ Square custom color picker */}
+                          <input
+                            type="color"
+                            onChange={(e) =>
+                              console.log("Custom color:", e.target.value)
+                            }
+                            style={{
+                              width: "35px",
+                              height: "35px",
+                              border: "1px solid #aaa",
+                              borderRadius: "4px",
+                              cursor: "pointer",
+                            }}
+                          />
+                        </div>
+
+                        {/* Logo Upload */}
+                        <label>Logo</label>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                            marginBottom: "20px",
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: "50px",
+                              height: "50px",
+                              borderRadius: "5%",
+                              border: "2px solid #aaa",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <FaImage style={{ color: "#aaa" }} />
+                          </div>
+                          <button
+                            style={{
+                              padding: "6px 12px",
+                              borderRadius: "5px",
+                              border: "1px solid #ccc",
+                              background: "#f5f5f5",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Upload Logo
+                          </button>
+                        </div>
+
+                        {/* Picture Upload */}
+                        <label>Picture</label>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                            marginBottom: "20px",
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: "50px",
+                              height: "50px",
+                              borderRadius: "5%",
+                              border: "2px solid #aaa",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <FaImage style={{ color: "#aaa" }} />
+                          </div>
+                          <button
+                            style={{
+                              padding: "6px 12px",
+                              borderRadius: "5px",
+                              border: "1px solid #ccc",
+                              background: "#f5f5f5",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Upload Picture
+                          </button>
+                        </div>
+
+                        {/* Buttons */}
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            gap: "12px",
+                          }}
+                        >
+                          <button
+                            onClick={() => setEditingCardIndex(null)}
+                            style={{
+                              padding: "8px 16px",
+                              borderRadius: "6px",
+                              border: "none",
+                              background: "#ccc",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={() => handleSave(card)}
+                            style={{
+                              padding: "8px 16px",
+                              borderRadius: "6px",
+                              border: "none",
+                              background: "#1FA2C9",
+                              color: "#fff",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Save Changes
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
           )}
-
 
           {/* cards 5 */}
           {(filterStatus === "All Cards" || filterStatus === "Amount Card") && (
@@ -2377,7 +3610,6 @@ const RewardsCards = ({ collapsed, setCollapsed }) => {
                       gap: "12px",
                     }}
                   >
-                    {/* Edit Icon */}
                     <div
                       style={{
                         width: "32px",
@@ -2389,11 +3621,10 @@ const RewardsCards = ({ collapsed, setCollapsed }) => {
                         justifyContent: "center",
                         cursor: "pointer",
                       }}
+                      onClick={() => setEditingCardIndex(6)} // ✅ index set karo
                     >
                       <FaPencil style={{ color: "#fff" }} />
                     </div>
-
-                    {/* Delete Icon */}
                     <div
                       style={{
                         width: "32px",
@@ -2405,17 +3636,272 @@ const RewardsCards = ({ collapsed, setCollapsed }) => {
                         justifyContent: "center",
                         cursor: "pointer",
                       }}
+                      onClick={() => handleDelete(card)}
                     >
-                      <FaTrash style={{ color: "red" }} />
+                      <FaTrash style={{ color: "#fff" }} />
                     </div>
                   </div>
+                  {editingCardIndex === 6 && ( // ✅ Amount Card ka index
+                    <div
+                      style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: "rgba(0,0,0,0.6)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        zIndex: 1000,
+                      }}
+                    >
+                      <div
+                        style={{
+                          background: "#fff",
+                          padding: "25px",
+                          borderRadius: "12px",
+                          width: "450px",
+                          maxHeight: "80vh",
+                          overflowY: "auto",
+                          boxShadow: "0 6px 20px rgba(0,0,0,0.3)",
+                        }}
+                      >
+                        <h3 style={{ marginBottom: "20px", color: "#0E2A47" }}>
+                          Edit Reward Card
+                        </h3>
+
+                        {/* Label */}
+                        <label>Label / Tag</label>
+                        <input
+                          type="text"
+                          defaultValue="Cashback"
+                          style={{
+                            width: "100%",
+                            padding: "8px",
+                            marginBottom: "12px",
+                            borderRadius: "6px",
+                            border: "1px solid #ccc",
+                          }}
+                        />
+
+                        {/* ✅ Reward Strategy for Amount Card */}
+                        <label>Earned</label>
+                        <input
+                          type="number"
+                          defaultValue={15}
+                          style={{
+                            width: "100%",
+                            padding: "8px",
+                            marginBottom: "12px",
+                            borderRadius: "6px",
+                            border: "1px solid #ccc",
+                          }}
+                        />
+
+                        <label>Redeemed</label>
+                        <input
+                          type="number"
+                          defaultValue={0}
+                          style={{
+                            width: "100%",
+                            padding: "8px",
+                            marginBottom: "12px",
+                            borderRadius: "6px",
+                            border: "1px solid #ccc",
+                          }}
+                        />
+
+                        <label>Balance</label>
+                        <input
+                          type="number"
+                          defaultValue={0}
+                          style={{
+                            width: "100%",
+                            padding: "8px",
+                            marginBottom: "20px",
+                            borderRadius: "6px",
+                            border: "1px solid #ccc",
+                          }}
+                        />
+
+                        {/* Expiry Date */}
+                        <label>Expiry Date</label>
+                        <input
+                          type="date"
+                          defaultValue="2026-09-30"
+                          style={{
+                            width: "100%",
+                            padding: "8px",
+                            marginBottom: "20px",
+                            borderRadius: "6px",
+                            border: "1px solid #ccc",
+                          }}
+                        />
+
+                        {/* Background Color */}
+                        <label>Background Color</label>
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "10px",
+                            marginBottom: "20px",
+                            flexWrap: "wrap",
+                          }}
+                        >
+                          {[
+                            "darkblue",
+                            "teal",
+                            "green",
+                            "orange",
+                            "purple",
+                            "white",
+                            "black",
+                          ].map((color) => (
+                            <div
+                              key={color}
+                              style={{
+                                width: "30px",
+                                height: "30px",
+                                borderRadius: "50%",
+                                backgroundColor: color,
+                                border: "1px solid #ccc",
+                                cursor: "pointer",
+                              }}
+                            ></div>
+                          ))}
+                          {/* Square custom color picker */}
+                          <input
+                            type="color"
+                            style={{
+                              width: "35px",
+                              height: "35px",
+                              border: "1px solid #aaa",
+                              borderRadius: "4px",
+                              cursor: "pointer",
+                            }}
+                          />
+                        </div>
+
+                        {/* Logo Upload */}
+                        <label>Logo</label>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                            marginBottom: "20px",
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: "60px",
+                              height: "60px",
+                              borderRadius: "5%",
+                              border: "2px solid #aaa",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <FaImage
+                              style={{ color: "#aaa", fontSize: "24px" }}
+                            />
+                          </div>
+                          <button
+                            style={{
+                              padding: "6px 12px",
+                              borderRadius: "5px",
+                              border: "1px solid #ccc",
+                              background: "#f5f5f5",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Upload Logo
+                          </button>
+                        </div>
+
+                        {/* Picture Upload */}
+                        <label>Picture</label>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                            marginBottom: "20px",
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: "60px",
+                              height: "60px",
+                              borderRadius: "5%",
+                              border: "2px solid #aaa",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <FaImage
+                              style={{ color: "#aaa", fontSize: "24px" }}
+                            />
+                          </div>
+                          <button
+                            style={{
+                              padding: "6px 12px",
+                              borderRadius: "6px",
+                              border: "1px solid #ccc",
+                              background: "#f5f5f5",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Upload Picture
+                          </button>
+                        </div>
+
+                        {/* Buttons */}
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            gap: "12px",
+                          }}
+                        >
+                          <button
+                            onClick={() => setEditingCardIndex(null)}
+                            style={{
+                              padding: "8px 16px",
+                              borderRadius: "6px",
+                              border: "none",
+                              background: "#ccc",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={() => handleSave(card)}
+                            style={{
+                              padding: "8px 16px",
+                              borderRadius: "6px",
+                              border: "none",
+                              background: "#1FA2C9",
+                              color: "#fff",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Save Changes
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
           )}
-          
-          
-         {/* cards 6 */}
+
+          {/* cards 6 */}
           {(filterStatus === "All Cards" || filterStatus === "Point Card") && (
             <div
               style={{
@@ -2701,7 +4187,6 @@ const RewardsCards = ({ collapsed, setCollapsed }) => {
                       gap: "12px",
                     }}
                   >
-                    {/* Edit Icon */}
                     <div
                       style={{
                         width: "32px",
@@ -2713,11 +4198,10 @@ const RewardsCards = ({ collapsed, setCollapsed }) => {
                         justifyContent: "center",
                         cursor: "pointer",
                       }}
+                      onClick={() => setEditingCardIndex(3)} // ✅ index set karo
                     >
                       <FaPencil style={{ color: "#fff" }} />
                     </div>
-
-                    {/* Delete Icon */}
                     <div
                       style={{
                         width: "32px",
@@ -2729,2063 +4213,254 @@ const RewardsCards = ({ collapsed, setCollapsed }) => {
                         justifyContent: "center",
                         cursor: "pointer",
                       }}
+                      onClick={() => handleDelete(card)}
                     >
-                      <FaTrash style={{ color: "red" }} />
+                      <FaTrash style={{ color: "#fff" }} />
                     </div>
                   </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-{/* customer cards */}
-      {activeTab === "Customer" && (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)", // ✅ 3 cards per row
-            gap: "10px",
-            padding: "20px",
-          }}
-        >
-          {/* cards 1 */}
-          {(filterStatus === "All Cards" || filterStatus === "Amount Card") && (
-            <div
-              style={{
-                border: "1px solid #ddd",
-                borderRadius: "12px",
-                padding: "20px",
-                marginBottom: "20px",
-                backgroundColor: cardStates[6] ? "#0E2A47" : "#555",
-                boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                maxWidth: "900px",
-                maxHeight: "465px",
-              }}
-            >
-              {/* Header */}
-              <div style={{ textAlign: "center", marginBottom: "10px" }}>
-                <h3
-                  style={{
-                    color: "#1FA2C9",
-                    margin: 0,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "8px",
-                    fontSize: "16px",
-                    fontWeight: "bold",
-                  }}
-                >
-                  <FaMoneyBillWave style={{ color: "#1FA2C9" }} />
-                  AMOUNT CARD
-                </h3>
-              </div>
 
-              {/* Divider Line under Amount */}
-              <hr
-                style={{
-                  margin: "0 0 15px 0", // ✅ no extra spacing
-                  border: "1px solid #777",
-                  width: "calc(100% + 40px)", // ✅ expands beyond padding (20px left + 20px right)
-                  marginLeft: "-20px", // ✅ shifts line left
-                }}
-              />
-
-              {/* Content Row */}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                }}
-              >
-                {/* Left Side: Logo + Info */}
-                <div style={{ display: "flex", gap: "12px" }}>
-                  {/* Round Logo */}
-                  <div
-                    style={{
-                      width: "50px",
-                      height: "50px",
-                      borderRadius: "50%",
-                      backgroundColor: "#fff",
-                      color: "#1E3A5F",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "20px",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    B
-                  </div>
-
-                  {/* Info */}
-                  <div>
-                    <b style={{ color: "#fff", fontSize: "16px" }}>
-                      Brew & Bean Coffee
-                    </b>
+                  {editingCardIndex === 3 && (
                     <div
                       style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: "rgba(0,0,0,0.6)",
                         display: "flex",
                         alignItems: "center",
-                        gap: "6px",
-                        marginTop: "4px",
+                        justifyContent: "center",
+                        zIndex: 1000,
                       }}
                     >
-                      {/* Right Side: Cashback Badge */}
-                      {/* Right Side: Cashback Badge */}
-                      <span
+                      <div
                         style={{
-                          backgroundColor: cardStates[6] ? "#1FA2C9" : "#ccc", // ✅ ON par blue, OFF par grey
-                          padding: "6px 12px",
-                          borderRadius: "20px",
-                          fontSize: "12px",
-                          fontWeight: "bold",
-                          color: cardStates[6] ? "#0E2A47" : "#555", // ✅ ON par dark text, OFF par muted text
-                          transition:
-                            "background-color 0.3s ease, color 0.3s ease", // ✅ smooth transition
+                          background: "#fff",
+                          padding: "25px",
+                          borderRadius: "12px",
+                          width: "450px",
+                          maxHeight: "80vh", // ✅ scroll limit
+                          overflowY: "auto", // ✅ scroll enable
+                          boxShadow: "0 6px 20px rgba(0,0,0,0.3)",
                         }}
                       >
-                        Cashback
-                      </span>
+                        <h3 style={{ marginBottom: "20px", color: "#0E2A47" }}>
+                          Edit Reward Card
+                        </h3>
+
+                        {/* Label */}
+                        <label>Label / Tag</label>
+                        <input
+                          type="text"
+                          defaultValue="Free Item"
+                          style={{
+                            width: "100%",
+                            padding: "8px",
+                            marginBottom: "12px",
+                            borderRadius: "6px",
+                            border: "1px solid #ccc",
+                          }}
+                        />
+
+                        {/* Visits */}
+                        <label>Visits Required</label>
+                        <input
+                          type="number"
+                          defaultValue={10}
+                          style={{
+                            width: "100%",
+                            padding: "8px",
+                            marginBottom: "12px",
+                            borderRadius: "6px",
+                            border: "1px solid #ccc",
+                          }}
+                        />
+
+                        {/* Offer */}
+                        <label>Offer Description</label>
+                        <input
+                          type="text"
+                          defaultValue="1 point per visit"
+                          style={{
+                            width: "100%",
+                            padding: "8px",
+                            marginBottom: "12px",
+                            borderRadius: "6px",
+                            border: "1px solid #ccc",
+                          }}
+                        />
+
+                        {/* Expiry */}
+                        <label>Expiry Date</label>
+                        <input
+                          type="date"
+                          defaultValue="2026-09-30"
+                          style={{
+                            width: "100%",
+                            padding: "8px",
+                            marginBottom: "20px",
+                            borderRadius: "6px",
+                            border: "1px solid #ccc",
+                          }}
+                        />
+
+                        {/* Background Color */}
+                        <label>Background Color</label>
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "10px",
+                            marginBottom: "20px",
+                            flexWrap: "wrap",
+                          }}
+                        >
+                          {[
+                            "darkblue",
+                            "teal",
+                            "green",
+                            "orange",
+                            "purple",
+                            "white",
+                            "black",
+                          ].map((color) => (
+                            <div
+                              key={color}
+                              style={{
+                                width: "30px",
+                                height: "30px",
+                                borderRadius: "50%",
+                                backgroundColor: color,
+                                border: "1px solid #ccc",
+                                cursor: "pointer",
+                              }}
+                            ></div>
+                          ))}
+                          {/* ✅ Square custom color picker */}
+                          <input
+                            type="color"
+                            onChange={(e) =>
+                              console.log("Custom color:", e.target.value)
+                            }
+                            style={{
+                              width: "35px",
+                              height: "35px",
+                              border: "1px solid #aaa",
+                              borderRadius: "4px",
+                              cursor: "pointer",
+                            }}
+                          />
+                        </div>
+
+                        {/* Logo Upload */}
+                        <label>Logo</label>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                            marginBottom: "20px",
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: "50px",
+                              height: "50px",
+                              borderRadius: "5%",
+                              border: "2px solid #aaa",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <FaImage style={{ color: "#aaa" }} />
+                          </div>
+                          <button
+                            style={{
+                              padding: "6px 12px",
+                              borderRadius: "5px",
+                              border: "1px solid #ccc",
+                              background: "#f5f5f5",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Upload Logo
+                          </button>
+                        </div>
+
+                        {/* Picture Upload */}
+                        <label>Picture</label>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                            marginBottom: "20px",
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: "50px",
+                              height: "50px",
+                              borderRadius: "5%",
+                              border: "2px solid #aaa",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <FaImage style={{ color: "#aaa" }} />
+                          </div>
+                          <button
+                            style={{
+                              padding: "6px 12px",
+                              borderRadius: "5px",
+                              border: "1px solid #ccc",
+                              background: "#f5f5f5",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Upload Picture
+                          </button>
+                        </div>
+
+                        {/* Buttons */}
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            gap: "12px",
+                          }}
+                        >
+                          <button
+                            onClick={() => setEditingCardIndex(null)}
+                            style={{
+                              padding: "8px 16px",
+                              borderRadius: "6px",
+                              border: "none",
+                              background: "#ccc",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={() => handleSave(card)}
+                            style={{
+                              padding: "8px 16px",
+                              borderRadius: "6px",
+                              border: "none",
+                              background: "#1FA2C9",
+                              color: "#fff",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Save Changes
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-
-                {/* Toggle */}
-                <label
-                  style={{
-                    position: "relative",
-                    display: "inline-block",
-                    width: "40px",
-                    height: "20px",
-                  }}
-                >
-                  <input
-                    type="checkbox"
-                    checked={cardStates[6]}
-                    onChange={() => handleToggle(6)} // ✅ sirf Amount Card toggle
-                    style={{ opacity: 0, width: 0, height: 0 }}
-                  />
-                  <span
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      backgroundColor: cardStates[6] ? "#1FA2C9" : "#aaa",
-                      borderRadius: "20px",
-                      transition: "0.4s",
-                    }}
-                  ></span>
-                  <span
-                    style={{
-                      position: "absolute",
-                      height: "16px",
-                      width: "16px",
-                      left: cardStates[6] ? "22px" : "2px",
-                      bottom: "2px",
-                      backgroundColor: "white",
-                      borderRadius: "50%",
-                      transition: "0.4s",
-                    }}
-                  ></span>
-                </label>
-              </div>
-
-              {/* Offer Line */}
-              <p
-                style={{ marginTop: "12px", color: "#fff", fontWeight: "bold" }}
-              >
-                5% cashback on every order above $20
-              </p>
-
-              {/* Cashback Details */}
-
-              <div style={{ marginTop: "20px", display: "grid", gap: "15px" }}>
-                {/* Earned */}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    border: "1px solid #ddd",
-                    borderRadius: "10px",
-                    padding: "7px",
-                  }}
-                >
-                  <div>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                      }}
-                    >
-                      <FaWallet style={{ color: "#fff", fontSize: "18px" }} />
-                      <span
-                        style={{
-                          fontWeight: "bold",
-                          color: "#fff",
-                          fontSize: "15px",
-                        }}
-                      >
-                        Earned
-                      </span>
-                    </div>
-                    <p
-                      style={{
-                        margin: "6px 0 0",
-                        color: "#fff",
-                        fontSize: "14px",
-                      }}
-                    >
-                      Rs 15
-                    </p>
-                  </div>
-                  <span
-                    style={{
-                      backgroundColor: "#fff",
-                      padding: "4px 12px",
-                      borderRadius: "20px",
-                      fontSize: "12px",
-                      fontWeight: "bold",
-                      color: "#0E2A47",
-                    }}
-                  >
-                    Total
-                  </span>
-                </div>
-
-                {/* Redeemed */}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    border: "1px solid #ddd",
-                    borderRadius: "10px",
-                    padding: "7px",
-                  }}
-                >
-                  <div>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                      }}
-                    >
-                      <FaGift style={{ color: "#fff", fontSize: "18px" }} />
-                      <span
-                        style={{
-                          fontWeight: "bold",
-                          color: "#fff",
-                          fontSize: "15px",
-                        }}
-                      >
-                        Redeemed
-                      </span>
-                    </div>
-                    <p
-                      style={{
-                        margin: "6px 0 0",
-                        color: "#fff",
-                        fontSize: "14px",
-                      }}
-                    >
-                      Rs 0
-                    </p>
-                  </div>
-                  <span
-                    style={{
-                      backgroundColor: "#fff",
-                      padding: "4px 12px",
-                      borderRadius: "20px",
-                      fontSize: "12px",
-                      fontWeight: "bold",
-                      color: "#0E2A47",
-                    }}
-                  >
-                    Used
-                  </span>
-                </div>
-
-                {/* Available Balance */}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    border: "1px solid #ddd",
-                    borderRadius: "10px",
-                    padding: "12px",
-                  }}
-                >
-                  <span style={{ fontWeight: "bold", color: "#fff" }}>
-                    Available Balance
-                  </span>
-                  <p style={{ margin: 0, color: "#fff", fontWeight: "bold" }}>
-                    Rs 0
-                  </p>
-                </div>
-              </div>
-
-              {/* Divider Line under Available Balance */}
-              <hr style={{ margin: "15px 0", border: "1px solid #777" }} />
-
-              <div>
-                {/* Top Row: Expires + Toggle */}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: "15px",
-                  }}
-                >
-                  {/* Left Side: Expires */}
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                    }}
-                  >
-                    <FaCalendarAlt
-                      style={{ color: "#fff", fontSize: "14px" }}
-                    />
-                    <span style={{ fontSize: "13px", color: "#fff" }}>
-                      Expires Sep 30, 2026
-                    </span>
-                  </div>
-
-                  {/* Bottom Row: Edit + Delete Icons */}
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "flex-end",
-                      gap: "12px",
-                    }}
-                  >
-                    {/* Edit Icon */}
-                    <div
-                      style={{
-                        width: "32px",
-                        height: "32px",
-                        borderRadius: "50%",
-                        border: "1px solid #ddd",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <FaPencil style={{ color: "#fff" }} />
-                    </div>
-
-                    {/* Delete Icon */}
-                    <div
-                      style={{
-                        width: "32px",
-                        height: "32px",
-                        borderRadius: "50%",
-                        border: "1px solid #ddd",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <FaTrash style={{ color: "red" }} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-         
-         {/* cards 2 */}
-          {(filterStatus === "All Cards" || filterStatus === "Point Card") && (
-            <div
-              style={{
-                border: "1px solid #ddd",
-                borderRadius: "12px",
-                padding: "20px",
-                marginBottom: "20px",
-                backgroundColor: cardStates[7] ? "#0E2A47" : "#555",
-                boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                maxWidth: "900px",
-                maxHeight: "465px",
-              }}
-            >
-              {/* Header */}
-              <div style={{ textAlign: "center", marginBottom: "10px" }}>
-                <h3
-                  style={{
-                    color: "#1FA2C9",
-                    margin: 0,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "8px",
-                    fontSize: "16px",
-                    fontWeight: "bold",
-                  }}
-                >
-                  <FaCoins style={{ color: "#1FA2C9" }} />
-                  POINT CARD
-                </h3>
-              </div>
-
-              {/* Divider Line under Amount */}
-              <hr
-                style={{
-                  margin: "0 0 15px 0", // ✅ no extra spacing
-                  border: "1px solid #777",
-                  width: "calc(100% + 40px)", // ✅ expands beyond padding (20px left + 20px right)
-                  marginLeft: "-20px", // ✅ shifts line left
-                }}
-              />
-
-              {/* Content Row */}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                }}
-              >
-                {/* Left Side: Logo + Info */}
-                <div style={{ display: "flex", gap: "12px" }}>
-                  {/* Round Logo */}
-                  <div
-                    style={{
-                      width: "50px",
-                      height: "50px",
-                      borderRadius: "50%",
-                      backgroundColor: "#fff",
-                      color: "#0E2A47",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "20px",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    S
-                  </div>
-
-                  {/* Info */}
-                  <div>
-                    <b style={{ color: "#fff", fontSize: "16px" }}>
-                      Slice House Pizzeria
-                    </b>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        marginTop: "4px",
-                      }}
-                    >
-                      {/* Right Side: Cashback Badge */}
-                      <span
-                        style={{
-                          backgroundColor: cardStates[7] ? "#1FA2C9" : "#ccc", // ✅ ON par blue, OFF par grey
-                          padding: "6px 12px",
-                          borderRadius: "20px",
-                          fontSize: "12px",
-                          fontWeight: "bold",
-                          color: cardStates[7] ? "#0E2A47" : "#555", // ✅ ON par dark text, OFF par muted text
-                          transition:
-                            "background-color 0.3s ease, color 0.3s ease", // ✅ smooth transition
-                        }}
-                      >
-                        Free Item
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Toggle */}
-                <label
-                  style={{
-                    position: "relative",
-                    display: "inline-block",
-                    width: "40px",
-                    height: "20px",
-                  }}
-                >
-                  <input
-                    type="checkbox"
-                    checked={cardStates[7]}
-                    onChange={() => handleToggle(7)} // ✅ sirf Amount Card toggle
-                    style={{ opacity: 0, width: 0, height: 0 }}
-                  />
-                  <span
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      backgroundColor: cardStates[7] ? "#1FA2C9" : "#aaa",
-                      borderRadius: "20px",
-                      transition: "0.4s",
-                    }}
-                  ></span>
-                  <span
-                    style={{
-                      position: "absolute",
-                      height: "16px",
-                      width: "16px",
-                      left: cardStates[7] ? "22px" : "2px",
-                      bottom: "2px",
-                      backgroundColor: "white",
-                      borderRadius: "50%",
-                      transition: "0.4s",
-                    }}
-                  ></span>
-                </label>
-              </div>
-
-              {/* Offer Line */}
-              <p
-                style={{ marginTop: "12px", color: "#fff", fontWeight: "bold" }}
-              >
-                Customers earn 1 point per visit.
-              </p>
-
-              {/* Progress Tracker */}
-              <div
-                style={{
-                  border: "1px solid #ddd",
-                  borderRadius: "12px",
-                  padding: "20px",
-                  backgroundColor: cardStates[7] ? "#0E2A47" : "#555",
-                  maxWidth: "350px",
-                  maxHeight: "300px",
-                }}
-              >
-                {/* Header Row */}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: "15px",
-                  }}
-                >
-                  {/* Left Side: Icon + Progress */}
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                    }}
-                  >
-                    <FaStar style={{ color: "#fff", fontSize: "18px" }} />
-                    <span style={{ fontWeight: "bold", color: "#fff" }}>
-                      Progress
-                    </span>
-                  </div>
-
-                  {/* Right Side: Points */}
-                  <span style={{ fontWeight: "bold", color: "#fff" }}>
-                    0 / 10 pts
-                  </span>
-                </div>
-
-                {/* Circles Row */}
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(5, 1fr)", // ✅ 5 circles per row
-                    gap: "12px",
-                    justifyItems: "center",
-                    marginBottom: "20px",
-                  }}
-                >
-                  {Array.from({ length: 10 }, (_, i) => (
-                    <div
-                      key={i}
-                      style={{
-                        width: "30px",
-                        height: "30px",
-                        borderRadius: "50%",
-                        border: "2px dashed #fff",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontWeight: "bold",
-                        color: "#fff",
-                      }}
-                    >
-                      {i + 1}
-                    </div>
-                  ))}
-                </div>
-
-                {/* Divider Line */}
-                <hr
-                  style={{
-                    margin: "0 0 15px 0",
-                    border: "1px solid #777",
-                    width: "100%",
-                  }}
-                />
-
-                {/* Footer Row */}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  {/* Left Side: Visits Required */}
-                  <span style={{ color: "#fff", fontWeight: "bold" }}>
-                    Visits required
-                  </span>
-
-                  {/* Right Side: Total */}
-                  <span style={{ color: "#fff", fontWeight: "bold" }}>10</span>
-                </div>
-              </div>
-
-              {/* Divider Line under Available Balance */}
-              <hr style={{ margin: "15px 0", border: "1px solid #777" }} />
-
-              <div>
-                {/*  Expires  */}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: "15px",
-                  }}
-                >
-                  {/* Left Side: Expires */}
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                    }}
-                  >
-                    <FaCalendarAlt
-                      style={{ color: "#fff", fontSize: "14px" }}
-                    />
-                    <span style={{ fontSize: "13px", color: "#fff" }}>
-                      Expires Sep 30, 2026
-                    </span>
-                  </div>
-
-                  {/* Bottom Row: Edit + Delete Icons */}
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "flex-end",
-                      gap: "12px",
-                    }}
-                  >
-                    {/* Edit Icon */}
-                    <div
-                      style={{
-                        width: "32px",
-                        height: "32px",
-                        borderRadius: "50%",
-                        border: "1px solid #ddd",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <FaPencil style={{ color: "#fff" }} />
-                    </div>
-
-                    {/* Delete Icon */}
-                    <div
-                      style={{
-                        width: "32px",
-                        height: "32px",
-                        borderRadius: "50%",
-                        border: "1px solid #ddd",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <FaTrash style={{ color: "red" }} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-          {/* cards 3 */}
-          {(filterStatus === "All Cards" || filterStatus === "Amount Card") && (
-            <div
-              style={{
-                border: "1px solid #ddd",
-                borderRadius: "12px",
-                padding: "20px",
-                marginBottom: "20px",
-                backgroundColor: cardStates[8] ? "#0E2A47" : "#555",
-                boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                maxWidth: "900px",
-                maxHeight: "465px",
-              }}
-            >
-              {/* Header */}
-              <div style={{ textAlign: "center", marginBottom: "10px" }}>
-                <h3
-                  style={{
-                    color: "#1FA2C9",
-                    margin: 0,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "8px",
-                    fontSize: "16px",
-                    fontWeight: "bold",
-                  }}
-                >
-                  <FaMoneyBillWave style={{ color: "#1FA2C9" }} />
-                  AMOUNT CARD
-                </h3>
-              </div>
-
-              {/* Divider Line under Amount */}
-              <hr
-                style={{
-                  margin: "0 0 15px 0", // ✅ no extra spacing
-                  border: "1px solid #777",
-                  width: "calc(100% + 40px)", // ✅ expands beyond padding (20px left + 20px right)
-                  marginLeft: "-20px", // ✅ shifts line left
-                }}
-              />
-
-              {/* Content Row */}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                }}
-              >
-                {/* Left Side: Logo + Info */}
-                <div style={{ display: "flex", gap: "12px" }}>
-                  {/* Round Logo */}
-                  <div
-                    style={{
-                      width: "50px",
-                      height: "50px",
-                      borderRadius: "50%",
-                      backgroundColor: "#fff",
-                      color: "#1E3A5F",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "20px",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    B
-                  </div>
-
-                  {/* Info */}
-                  <div>
-                    <b style={{ color: "#fff", fontSize: "16px" }}>
-                      Brew & Bean Coffee
-                    </b>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        marginTop: "4px",
-                      }}
-                    >
-                      {/* Right Side: Cashback Badge */}
-                      {/* Right Side: Cashback Badge */}
-                      <span
-                        style={{
-                          backgroundColor: cardStates[8] ? "#1FA2C9" : "#ccc", // ✅ ON par blue, OFF par grey
-                          padding: "6px 12px",
-                          borderRadius: "20px",
-                          fontSize: "12px",
-                          fontWeight: "bold",
-                          color: cardStates[8] ? "#0E2A47" : "#555", // ✅ ON par dark text, OFF par muted text
-                          transition:
-                            "background-color 0.3s ease, color 0.3s ease", // ✅ smooth transition
-                        }}
-                      >
-                        Cashback
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Toggle */}
-                <label
-                  style={{
-                    position: "relative",
-                    display: "inline-block",
-                    width: "40px",
-                    height: "20px",
-                  }}
-                >
-                  <input
-                    type="checkbox"
-                    checked={cardStates[8]}
-                    onChange={() => handleToggle(8)} // ✅ sirf Amount Card toggle
-                    style={{ opacity: 0, width: 0, height: 0 }}
-                  />
-                  <span
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      backgroundColor: cardStates[8] ? "#1FA2C9" : "#aaa",
-                      borderRadius: "20px",
-                      transition: "0.4s",
-                    }}
-                  ></span>
-                  <span
-                    style={{
-                      position: "absolute",
-                      height: "16px",
-                      width: "16px",
-                      left: cardStates[8] ? "22px" : "2px",
-                      bottom: "2px",
-                      backgroundColor: "white",
-                      borderRadius: "50%",
-                      transition: "0.4s",
-                    }}
-                  ></span>
-                </label>
-              </div>
-
-              {/* Offer Line */}
-              <p
-                style={{ marginTop: "12px", color: "#fff", fontWeight: "bold" }}
-              >
-                5% cashback on every order above $20
-              </p>
-
-              {/* Cashback Details */}
-
-              <div style={{ marginTop: "20px", display: "grid", gap: "15px" }}>
-                {/* Earned */}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    border: "1px solid #ddd",
-                    borderRadius: "10px",
-                    padding: "7px",
-                  }}
-                >
-                  <div>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                      }}
-                    >
-                      <FaWallet style={{ color: "#fff", fontSize: "18px" }} />
-                      <span
-                        style={{
-                          fontWeight: "bold",
-                          color: "#fff",
-                          fontSize: "15px",
-                        }}
-                      >
-                        Earned
-                      </span>
-                    </div>
-                    <p
-                      style={{
-                        margin: "6px 0 0",
-                        color: "#fff",
-                        fontSize: "14px",
-                      }}
-                    >
-                      Rs 15
-                    </p>
-                  </div>
-                  <span
-                    style={{
-                      backgroundColor: "#fff",
-                      padding: "4px 12px",
-                      borderRadius: "20px",
-                      fontSize: "12px",
-                      fontWeight: "bold",
-                      color: "#0E2A47",
-                    }}
-                  >
-                    Total
-                  </span>
-                </div>
-
-                {/* Redeemed */}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    border: "1px solid #ddd",
-                    borderRadius: "10px",
-                    padding: "7px",
-                  }}
-                >
-                  <div>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                      }}
-                    >
-                      <FaGift style={{ color: "#fff", fontSize: "18px" }} />
-                      <span
-                        style={{
-                          fontWeight: "bold",
-                          color: "#fff",
-                          fontSize: "15px",
-                        }}
-                      >
-                        Redeemed
-                      </span>
-                    </div>
-                    <p
-                      style={{
-                        margin: "6px 0 0",
-                        color: "#fff",
-                        fontSize: "14px",
-                      }}
-                    >
-                      Rs 0
-                    </p>
-                  </div>
-                  <span
-                    style={{
-                      backgroundColor: "#fff",
-                      padding: "4px 12px",
-                      borderRadius: "20px",
-                      fontSize: "12px",
-                      fontWeight: "bold",
-                      color: "#0E2A47",
-                    }}
-                  >
-                    Used
-                  </span>
-                </div>
-
-                {/* Available Balance */}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    border: "1px solid #ddd",
-                    borderRadius: "10px",
-                    padding: "12px",
-                  }}
-                >
-                  <span style={{ fontWeight: "bold", color: "#fff" }}>
-                    Available Balance
-                  </span>
-                  <p style={{ margin: 0, color: "#fff", fontWeight: "bold" }}>
-                    Rs 0
-                  </p>
-                </div>
-              </div>
-
-              {/* Divider Line under Available Balance */}
-              <hr style={{ margin: "15px 0", border: "1px solid #777" }} />
-
-              <div>
-                {/* Top Row: Expires + Toggle */}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: "15px",
-                  }}
-                >
-                  {/* Left Side: Expires */}
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                    }}
-                  >
-                    <FaCalendarAlt
-                      style={{ color: "#fff", fontSize: "14px" }}
-                    />
-                    <span style={{ fontSize: "13px", color: "#fff" }}>
-                      Expires Sep 30, 2026
-                    </span>
-                  </div>
-
-                  {/* Bottom Row: Edit + Delete Icons */}
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "flex-end",
-                      gap: "12px",
-                    }}
-                  >
-                    {/* Edit Icon */}
-                    <div
-                      style={{
-                        width: "32px",
-                        height: "32px",
-                        borderRadius: "50%",
-                        border: "1px solid #ddd",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <FaPencil style={{ color: "#fff" }} />
-                    </div>
-
-                    {/* Delete Icon */}
-                    <div
-                      style={{
-                        width: "32px",
-                        height: "32px",
-                        borderRadius: "50%",
-                        border: "1px solid #ddd",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <FaTrash style={{ color: "red" }} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-          
-         {/* cards 4 */}
-          {(filterStatus === "All Cards" || filterStatus === "Point Card") && (
-            <div
-              style={{
-                border: "1px solid #ddd",
-                borderRadius: "12px",
-                padding: "20px",
-                marginBottom: "20px",
-                backgroundColor: cardStates[9] ? "#0E2A47" : "#555",
-                boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                maxWidth: "900px",
-                maxHeight: "465px",
-              }}
-            >
-              {/* Header */}
-              <div style={{ textAlign: "center", marginBottom: "10px" }}>
-                <h3
-                  style={{
-                    color: "#1FA2C9",
-                    margin: 0,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "8px",
-                    fontSize: "16px",
-                    fontWeight: "bold",
-                  }}
-                >
-                  <FaCoins style={{ color: "#1FA2C9" }} />
-                  POINT CARD
-                </h3>
-              </div>
-
-              {/* Divider Line under Amount */}
-              <hr
-                style={{
-                  margin: "0 0 15px 0", // ✅ no extra spacing
-                  border: "1px solid #777",
-                  width: "calc(100% + 40px)", // ✅ expands beyond padding (20px left + 20px right)
-                  marginLeft: "-20px", // ✅ shifts line left
-                }}
-              />
-
-              {/* Content Row */}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                }}
-              >
-                {/* Left Side: Logo + Info */}
-                <div style={{ display: "flex", gap: "12px" }}>
-                  {/* Round Logo */}
-                  <div
-                    style={{
-                      width: "50px",
-                      height: "50px",
-                      borderRadius: "50%",
-                      backgroundColor: "#fff",
-                      color: "#0E2A47",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "20px",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    S
-                  </div>
-
-                  {/* Info */}
-                  <div>
-                    <b style={{ color: "#fff", fontSize: "16px" }}>
-                      Slice House Pizzeria
-                    </b>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        marginTop: "4px",
-                      }}
-                    >
-                      {/* Right Side: Cashback Badge */}
-                      <span
-                        style={{
-                          backgroundColor: cardStates[9] ? "#1FA2C9" : "#ccc", // ✅ ON par blue, OFF par grey
-                          padding: "6px 12px",
-                          borderRadius: "20px",
-                          fontSize: "12px",
-                          fontWeight: "bold",
-                          color: cardStates[9] ? "#0E2A47" : "#555", // ✅ ON par dark text, OFF par muted text
-                          transition:
-                            "background-color 0.3s ease, color 0.3s ease", // ✅ smooth transition
-                        }}
-                      >
-                        Free Item
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Toggle */}
-                <label
-                  style={{
-                    position: "relative",
-                    display: "inline-block",
-                    width: "40px",
-                    height: "20px",
-                  }}
-                >
-                  <input
-                    type="checkbox"
-                    checked={cardStates[3]}
-                    onChange={() => handleToggle(9)} // ✅ sirf Amount Card toggle
-                    style={{ opacity: 0, width: 0, height: 0 }}
-                  />
-                  <span
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      backgroundColor: cardStates[9] ? "#1FA2C9" : "#aaa",
-                      borderRadius: "20px",
-                      transition: "0.4s",
-                    }}
-                  ></span>
-                  <span
-                    style={{
-                      position: "absolute",
-                      height: "16px",
-                      width: "16px",
-                      left: cardStates[9] ? "22px" : "2px",
-                      bottom: "2px",
-                      backgroundColor: "white",
-                      borderRadius: "50%",
-                      transition: "0.4s",
-                    }}
-                  ></span>
-                </label>
-              </div>
-
-              {/* Offer Line */}
-              <p
-                style={{ marginTop: "12px", color: "#fff", fontWeight: "bold" }}
-              >
-                Customers earn 1 point per visit.
-              </p>
-
-              {/* Progress Tracker */}
-              <div
-                style={{
-                  border: "1px solid #ddd",
-                  borderRadius: "12px",
-                  padding: "20px",
-                  backgroundColor: cardStates[9] ? "#0E2A47" : "#555",
-                  maxWidth: "350px",
-                  maxHeight: "300px",
-                }}
-              >
-                {/* Header Row */}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: "15px",
-                  }}
-                >
-                  {/* Left Side: Icon + Progress */}
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                    }}
-                  >
-                    <FaStar style={{ color: "#fff", fontSize: "18px" }} />
-                    <span style={{ fontWeight: "bold", color: "#fff" }}>
-                      Progress
-                    </span>
-                  </div>
-
-                  {/* Right Side: Points */}
-                  <span style={{ fontWeight: "bold", color: "#fff" }}>
-                    0 / 10 pts
-                  </span>
-                </div>
-
-                {/* Circles Row */}
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(5, 1fr)", // ✅ 5 circles per row
-                    gap: "12px",
-                    justifyItems: "center",
-                    marginBottom: "20px",
-                  }}
-                >
-                  {Array.from({ length: 10 }, (_, i) => (
-                    <div
-                      key={i}
-                      style={{
-                        width: "30px",
-                        height: "30px",
-                        borderRadius: "50%",
-                        border: "2px dashed #fff",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontWeight: "bold",
-                        color: "#fff",
-                      }}
-                    >
-                      {i + 1}
-                    </div>
-                  ))}
-                </div>
-
-                {/* Divider Line */}
-                <hr
-                  style={{
-                    margin: "0 0 15px 0",
-                    border: "1px solid #777",
-                    width: "100%",
-                  }}
-                />
-
-                {/* Footer Row */}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  {/* Left Side: Visits Required */}
-                  <span style={{ color: "#fff", fontWeight: "bold" }}>
-                    Visits required
-                  </span>
-
-                  {/* Right Side: Total */}
-                  <span style={{ color: "#fff", fontWeight: "bold" }}>10</span>
-                </div>
-              </div>
-
-              {/* Divider Line under Available Balance */}
-              <hr style={{ margin: "15px 0", border: "1px solid #777" }} />
-
-              <div>
-                {/*  Expires  */}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: "15px",
-                  }}
-                >
-                  {/* Left Side: Expires */}
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                    }}
-                  >
-                    <FaCalendarAlt
-                      style={{ color: "#fff", fontSize: "14px" }}
-                    />
-                    <span style={{ fontSize: "13px", color: "#fff" }}>
-                      Expires Sep 30, 2026
-                    </span>
-                  </div>
-
-                  {/* Bottom Row: Edit + Delete Icons */}
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "flex-end",
-                      gap: "12px",
-                    }}
-                  >
-                    {/* Edit Icon */}
-                    <div
-                      style={{
-                        width: "32px",
-                        height: "32px",
-                        borderRadius: "50%",
-                        border: "1px solid #ddd",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <FaPencil style={{ color: "#fff" }} />
-                    </div>
-
-                    {/* Delete Icon */}
-                    <div
-                      style={{
-                        width: "32px",
-                        height: "32px",
-                        borderRadius: "50%",
-                        border: "1px solid #ddd",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <FaTrash style={{ color: "red" }} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-          {/* cards 5 */}
-          {(filterStatus === "All Cards" || filterStatus === "Amount Card") && (
-            <div
-              style={{
-                border: "1px solid #ddd",
-                borderRadius: "12px",
-                padding: "20px",
-                marginBottom: "20px",
-                backgroundColor: cardStates[10] ? "#0E2A47" : "#555",
-                boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                maxWidth: "900px",
-                maxHeight: "465px",
-              }}
-            >
-              {/* Header */}
-              <div style={{ textAlign: "center", marginBottom: "10px" }}>
-                <h3
-                  style={{
-                    color: "#1FA2C9",
-                    margin: 0,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "8px",
-                    fontSize: "16px",
-                    fontWeight: "bold",
-                  }}
-                >
-                  <FaMoneyBillWave style={{ color: "#1FA2C9" }} />
-                  AMOUNT CARD
-                </h3>
-              </div>
-
-              {/* Divider Line under Amount */}
-              <hr
-                style={{
-                  margin: "0 0 15px 0", // ✅ no extra spacing
-                  border: "1px solid #777",
-                  width: "calc(100% + 40px)", // ✅ expands beyond padding (20px left + 20px right)
-                  marginLeft: "-20px", // ✅ shifts line left
-                }}
-              />
-
-              {/* Content Row */}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                }}
-              >
-                {/* Left Side: Logo + Info */}
-                <div style={{ display: "flex", gap: "12px" }}>
-                  {/* Round Logo */}
-                  <div
-                    style={{
-                      width: "50px",
-                      height: "50px",
-                      borderRadius: "50%",
-                      backgroundColor: "#fff",
-                      color: "#1E3A5F",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "20px",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    B
-                  </div>
-
-                  {/* Info */}
-                  <div>
-                    <b style={{ color: "#fff", fontSize: "16px" }}>
-                      Brew & Bean Coffee
-                    </b>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        marginTop: "4px",
-                      }}
-                    >
-                      {/* Right Side: Cashback Badge */}
-
-                      <span
-                        style={{
-                          backgroundColor: cardStates[10] ? "#1FA2C9" : "#ccc", // ✅ ON par blue, OFF par grey
-                          padding: "6px 12px",
-                          borderRadius: "20px",
-                          fontSize: "12px",
-                          fontWeight: "bold",
-                          color: cardStates[10] ? "#0E2A47" : "#555", // ✅ ON par dark text, OFF par muted text
-                          transition:
-                            "background-color 0.3s ease, color 0.3s ease", // ✅ smooth transition
-                        }}
-                      >
-                        Cashback
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Toggle */}
-                <label
-                  style={{
-                    position: "relative",
-                    display: "inline-block",
-                    width: "40px",
-                    height: "20px",
-                  }}
-                >
-                  <input
-                    type="checkbox"
-                    checked={cardStates[10]}
-                    onChange={() => handleToggle(10)} // ✅ sirf Amount Card toggle
-                    style={{ opacity: 0, width: 0, height: 0 }}
-                  />
-                  <span
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      backgroundColor: cardStates[10] ? "#1FA2C9" : "#aaa",
-                      borderRadius: "20px",
-                      transition: "0.4s",
-                    }}
-                  ></span>
-                  <span
-                    style={{
-                      position: "absolute",
-                      height: "16px",
-                      width: "16px",
-                      left: cardStates[10] ? "22px" : "2px",
-                      bottom: "2px",
-                      backgroundColor: "white",
-                      borderRadius: "50%",
-                      transition: "0.4s",
-                    }}
-                  ></span>
-                </label>
-              </div>
-
-              {/* Offer Line */}
-              <p
-                style={{ marginTop: "12px", color: "#fff", fontWeight: "bold" }}
-              >
-                5% cashback on every order above $20
-              </p>
-
-              {/* Cashback Details */}
-
-              <div style={{ marginTop: "20px", display: "grid", gap: "15px" }}>
-                {/* Earned */}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    border: "1px solid #ddd",
-                    borderRadius: "10px",
-                    padding: "7px",
-                  }}
-                >
-                  <div>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                      }}
-                    >
-                      <FaWallet style={{ color: "#fff", fontSize: "18px" }} />
-                      <span
-                        style={{
-                          fontWeight: "bold",
-                          color: "#fff",
-                          fontSize: "15px",
-                        }}
-                      >
-                        Earned
-                      </span>
-                    </div>
-                    <p
-                      style={{
-                        margin: "6px 0 0",
-                        color: "#fff",
-                        fontSize: "14px",
-                      }}
-                    >
-                      Rs 15
-                    </p>
-                  </div>
-                  <span
-                    style={{
-                      backgroundColor: "#fff",
-                      padding: "4px 12px",
-                      borderRadius: "20px",
-                      fontSize: "12px",
-                      fontWeight: "bold",
-                      color: "#0E2A47",
-                    }}
-                  >
-                    Total
-                  </span>
-                </div>
-
-                {/* Redeemed */}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    border: "1px solid #ddd",
-                    borderRadius: "10px",
-                    padding: "7px",
-                  }}
-                >
-                  <div>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                      }}
-                    >
-                      <FaGift style={{ color: "#fff", fontSize: "18px" }} />
-                      <span
-                        style={{
-                          fontWeight: "bold",
-                          color: "#fff",
-                          fontSize: "15px",
-                        }}
-                      >
-                        Redeemed
-                      </span>
-                    </div>
-                    <p
-                      style={{
-                        margin: "6px 0 0",
-                        color: "#fff",
-                        fontSize: "14px",
-                      }}
-                    >
-                      Rs 0
-                    </p>
-                  </div>
-                  <span
-                    style={{
-                      backgroundColor: "#fff",
-                      padding: "4px 12px",
-                      borderRadius: "20px",
-                      fontSize: "12px",
-                      fontWeight: "bold",
-                      color: "#0E2A47",
-                    }}
-                  >
-                    Used
-                  </span>
-                </div>
-
-                {/* Available Balance */}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    border: "1px solid #ddd",
-                    borderRadius: "10px",
-                    padding: "12px",
-                  }}
-                >
-                  <span style={{ fontWeight: "bold", color: "#fff" }}>
-                    Available Balance
-                  </span>
-                  <p style={{ margin: 0, color: "#fff", fontWeight: "bold" }}>
-                    Rs 0
-                  </p>
-                </div>
-              </div>
-
-              {/* Divider Line under Available Balance */}
-              <hr style={{ margin: "15px 0", border: "1px solid #777" }} />
-
-              <div>
-                {/* Top Row: Expires + Toggle */}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: "15px",
-                  }}
-                >
-                  {/* Left Side: Expires */}
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                    }}
-                  >
-                    <FaCalendarAlt
-                      style={{ color: "#fff", fontSize: "14px" }}
-                    />
-                    <span style={{ fontSize: "13px", color: "#fff" }}>
-                      Expires Sep 30, 2026
-                    </span>
-                  </div>
-
-                  {/* Bottom Row: Edit + Delete Icons */}
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "flex-end",
-                      gap: "12px",
-                    }}
-                  >
-                    {/* Edit Icon */}
-                    <div
-                      style={{
-                        width: "32px",
-                        height: "32px",
-                        borderRadius: "50%",
-                        border: "1px solid #ddd",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <FaPencil style={{ color: "#fff" }} />
-                    </div>
-
-                    {/* Delete Icon */}
-                    <div
-                      style={{
-                        width: "32px",
-                        height: "32px",
-                        borderRadius: "50%",
-                        border: "1px solid #ddd",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <FaTrash style={{ color: "red" }} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-      
-         {/* cards 6 */}
-          {(filterStatus === "All Cards" || filterStatus === "Point Card") && (
-            <div
-              style={{
-                border: "1px solid #ddd",
-                borderRadius: "12px",
-                padding: "20px",
-                marginBottom: "20px",
-                backgroundColor: cardStates[11] ? "#0E2A47" : "#555",
-                boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                maxWidth: "900px",
-                maxHeight: "465px",
-              }}
-            >
-              {/* Header */}
-              <div style={{ textAlign: "center", marginBottom: "10px" }}>
-                <h3
-                  style={{
-                    color: "#1FA2C9",
-                    margin: 0,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "8px",
-                    fontSize: "16px",
-                    fontWeight: "bold",
-                  }}
-                >
-                  <FaCoins style={{ color: "#1FA2C9" }} />
-                  POINT CARD
-                </h3>
-              </div>
-
-              {/* Divider Line under Amount */}
-              <hr
-                style={{
-                  margin: "0 0 15px 0", // ✅ no extra spacing
-                  border: "1px solid #777",
-                  width: "calc(100% + 40px)", // ✅ expands beyond padding (20px left + 20px right)
-                  marginLeft: "-20px", // ✅ shifts line left
-                }}
-              />
-
-              {/* Content Row */}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                }}
-              >
-                {/* Left Side: Logo + Info */}
-                <div style={{ display: "flex", gap: "12px" }}>
-                  {/* Round Logo */}
-                  <div
-                    style={{
-                      width: "50px",
-                      height: "50px",
-                      borderRadius: "50%",
-                      backgroundColor: "#fff",
-                      color: "#0E2A47",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "20px",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    S
-                  </div>
-
-                  {/* Info */}
-                  <div>
-                    <b style={{ color: "#fff", fontSize: "16px" }}>
-                      Slice House Pizzeria
-                    </b>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        marginTop: "4px",
-                      }}
-                    >
-                      {/* Right Side: Cashback Badge */}
-                      <span
-                        style={{
-                          backgroundColor: cardStates[11] ? "#1FA2C9" : "#ccc", // ✅ ON par blue, OFF par grey
-                          padding: "6px 12px",
-                          borderRadius: "20px",
-                          fontSize: "12px",
-                          fontWeight: "bold",
-                          color: cardStates[11] ? "#0E2A47" : "#555", // ✅ ON par dark text, OFF par muted text
-                          transition:
-                            "background-color 0.3s ease, color 0.3s ease", // ✅ smooth transition
-                        }}
-                      >
-                        Free Item
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Toggle */}
-                <label
-                  style={{
-                    position: "relative",
-                    display: "inline-block",
-                    width: "40px",
-                    height: "20px",
-                  }}
-                >
-                  <input
-                    type="checkbox"
-                    checked={cardStates[5]}
-                    onChange={() => handleToggle(11)} // ✅ sirf Amount Card toggle
-                    style={{ opacity: 0, width: 0, height: 0 }}
-                  />
-                  <span
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      backgroundColor: cardStates[11] ? "#1FA2C9" : "#aaa",
-                      borderRadius: "20px",
-                      transition: "0.4s",
-                    }}
-                  ></span>
-                  <span
-                    style={{
-                      position: "absolute",
-                      height: "16px",
-                      width: "16px",
-                      left: cardStates[11] ? "22px" : "2px",
-                      bottom: "2px",
-                      backgroundColor: "white",
-                      borderRadius: "50%",
-                      transition: "0.4s",
-                    }}
-                  ></span>
-                </label>
-              </div>
-
-              {/* Offer Line */}
-              <p
-                style={{ marginTop: "12px", color: "#fff", fontWeight: "bold" }}
-              >
-                Customers earn 1 point per visit.
-              </p>
-
-              {/* Progress Tracker */}
-              <div
-                style={{
-                  border: "1px solid #ddd",
-                  borderRadius: "12px",
-                  padding: "20px",
-                  backgroundColor: cardStates[11] ? "#0E2A47" : "#555",
-                  maxWidth: "350px",
-                  maxHeight: "300px",
-                }}
-              >
-                {/* Header Row */}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: "15px",
-                  }}
-                >
-                  {/* Left Side: Icon + Progress */}
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                    }}
-                  >
-                    <FaStar style={{ color: "#fff", fontSize: "18px" }} />
-                    <span style={{ fontWeight: "bold", color: "#fff" }}>
-                      Progress
-                    </span>
-                  </div>
-
-                  {/* Right Side: Points */}
-                  <span style={{ fontWeight: "bold", color: "#fff" }}>
-                    0 / 10 pts
-                  </span>
-                </div>
-
-                {/* Circles Row */}
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(5, 1fr)", // ✅ 5 circles per row
-                    gap: "12px",
-                    justifyItems: "center",
-                    marginBottom: "20px",
-                  }}
-                >
-                  {Array.from({ length: 10 }, (_, i) => (
-                    <div
-                      key={i}
-                      style={{
-                        width: "30px",
-                        height: "30px",
-                        borderRadius: "50%",
-                        border: "2px dashed #fff",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontWeight: "bold",
-                        color: "#fff",
-                      }}
-                    >
-                      {i + 1}
-                    </div>
-                  ))}
-                </div>
-
-                {/* Divider Line */}
-                <hr
-                  style={{
-                    margin: "0 0 15px 0",
-                    border: "1px solid #777",
-                    width: "100%",
-                  }}
-                />
-
-                {/* Footer Row */}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  {/* Left Side: Visits Required */}
-                  <span style={{ color: "#fff", fontWeight: "bold" }}>
-                    Visits required
-                  </span>
-
-                  {/* Right Side: Total */}
-                  <span style={{ color: "#fff", fontWeight: "bold" }}>10</span>
-                </div>
-              </div>
-
-              {/* Divider Line under Available Balance */}
-              <hr style={{ margin: "15px 0", border: "1px solid #777" }} />
-
-              <div>
-                {/*  Expires  */}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: "15px",
-                  }}
-                >
-                  {/* Left Side: Expires */}
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                    }}
-                  >
-                    <FaCalendarAlt
-                      style={{ color: "#fff", fontSize: "14px" }}
-                    />
-                    <span style={{ fontSize: "13px", color: "#fff" }}>
-                      Expires Sep 30, 2026
-                    </span>
-                  </div>
-
-                  {/* Bottom Row: Edit + Delete Icons */}
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "flex-end",
-                      gap: "12px",
-                    }}
-                  >
-                    {/* Edit Icon */}
-                    <div
-                      style={{
-                        width: "32px",
-                        height: "32px",
-                        borderRadius: "50%",
-                        border: "1px solid #ddd",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <FaPencil style={{ color: "#fff" }} />
-                    </div>
-
-                    {/* Delete Icon */}
-                    <div
-                      style={{
-                        width: "32px",
-                        height: "32px",
-                        borderRadius: "50%",
-                        border: "1px solid #ddd",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <FaTrash style={{ color: "red" }} />
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
             </div>

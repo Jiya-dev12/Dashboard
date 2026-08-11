@@ -9,6 +9,13 @@ import {
   FaBell,
   FaSearch,
   FaBars,
+  FaEnvelope,
+  FaPhone,
+  FaCalendarAlt,
+  FaUser,
+  FaUsers,
+  FaPencilAlt,
+  FaTrash,
 } from "react-icons/fa";
 
 const Customer = ({ collapsed, setCollapsed }) => {
@@ -18,9 +25,46 @@ const Customer = ({ collapsed, setCollapsed }) => {
     {
       name: "Sarah Mitchell",
       email: "sarah@email.com",
+      phone: "+1 555-001",
+      membership: "Gold Member",
+      joined: "Jan 2024",
       visits: 47,
       rewards: 3,
-      joined: "Jan 2024",
+      favorite: "Coffee Palace",
+      lastVisit: "Today",
+      connectedBusinesses: 3,
+      cards: [
+        {
+          type: "Point",
+          business: "Brew & Bean Coffee",
+          reward: "Free Item",
+          bgColor: "#1E3A5F",
+          progress: 4,
+          visitsRequired: 7, // ✅ add this
+          circleColor: "#1FA2C9",
+        },
+        {
+          type: "Amount",
+          business: "Urban Threads",
+          reward: "Discount",
+          bgColor: "green",
+          earned: "Rs 15",
+          redeemed: "Rs 0",
+          balance: "Rs 15",
+          earnedColor: "purple", // ✅ Sarah ke liye unique
+          redeemedColor: "orange", // ✅ Sarah ke liye unique
+          balanceColor: "teal", // ✅ Sarah ke liye unique
+        },
+        {
+          type: "Point",
+          business: "Slice House Pizza",
+          reward: "BOGO",
+          bgColor: "darkred",
+          progress: 6,
+          visitsRequired: 9, // ✅ add this
+          circleColor: "black",
+        },
+      ],
       history: [
         { shop: "Coffee Palace", date: "Mar 26, 2026", reward: "10% Discount" },
         { shop: "Fresh Eats", date: "Mar 24, 2026" },
@@ -33,105 +77,215 @@ const Customer = ({ collapsed, setCollapsed }) => {
         },
       ],
     },
+
     {
       name: "John Doe",
       email: "john@email.com",
+      phone: "+1 555-002", // ✅ phone
+      membership: "Silver Member", // ✅ membership
+      favorite: "Fresh Eats", // ✅ favorite
+      lastVisit: "Yesterday", // ✅ last visit
+      connectedBusinesses: 2, // ✅ connected businesses
       visits: 32,
       rewards: 2,
       joined: "Feb 2024",
+
+      // ✅ Only 2 cards: one Point, one Amount
+      cards: [
+        {
+          type: "Point",
+          business: "Fresh Eats",
+          reward: "Buy 1 Get 1 Meal",
+          bgColor: "#1E3A5F",
+          progress: 10, // ✅ 10 visits completed
+          visitsRequired: 15, // ✅ total visits required
+          circleColor: "#1FA2C9",
+        },
+
+        {
+          type: "Amount",
+          business: "Coffee Palace",
+          reward: "Free Drink",
+          bgColor: "darkred",
+          earned: "Rs 20",
+          redeemed: "Rs 5",
+          balance: "Rs 15",
+        },
+      ],
+
       history: [
         {
           shop: "Fresh Eats",
           date: "Mar 24, 2026",
           reward: "Buy 1 Get 1 Meal",
         },
-        { shop: "Fresh Eats", date: "Mar 24, 2026" },
         { shop: "Coffee Palace", date: "Mar 22, 2026", reward: "Free Drink" },
         { shop: "The Gym Hub", date: "Mar 20, 2026" },
-        {
-          shop: "Bella Salon",
-          date: "Mar 18, 2026",
-          reward: "20% Off Next Visit",
-        },
       ],
     },
     {
       name: "Aisha Khan",
       email: "aisha@email.com",
+      phone: "+1 555-003", // ✅ phone
+      membership: "Platinum Member", // ✅ membership
+      favorite: "Bella Salon", // ✅ favorite
+      lastVisit: "Mar 22, 2026", // ✅ last visit
+      connectedBusinesses: 4, // ✅ connected businesses
       visits: 58,
       rewards: 5,
-      joined: "Mar 2024",
-      history: [
-        { shop: "Bella Salon", date: "Mar 22, 2026", reward: "Free HairCut" },
-        { shop: "Fresh Eats", date: "Mar 24, 2026" },
-        { shop: "Coffee Palace", date: "Mar 22, 2026", reward: "Free Drink" },
-        { shop: "The Gym Hub", date: "Mar 20, 2026" },
+      joined: "Feb 2024",
+
+      // ✅ 2 Point Cards + 2 Amount Cards
+      cards: [
         {
-          shop: "Bella Salon",
-          date: "Mar 18, 2026",
-          reward: "20% Off Next Visit",
+          type: "Point",
+          business: "Fresh Eats",
+          reward: "Buy 1 Get 1 Meal",
+          bgColor: "darkred",
+          progress: 2,
+          visitsRequired: 5,
+          circleColor: "orange",
+        },
+        {
+          type: "Amount",
+          business: "Coffee Palace",
+          reward: "Free Drink",
+          bgColor: "green",
+          earned: "Rs 40",
+          redeemed: "Rs 10",
+          balance: "Rs 30",
+          earnedColor: "#4CAF50", // ✅ green
+          redeemedColor: "#F44336", // ✅ red
+          balanceColor: "#2196F3", // ✅ blue
+        },
+        {
+          type: "Point",
+          business: "Bella Salon",
+          reward: "Free Haircut",
+          bgColor: "#1E3A5F",
+          progress: 6,
+          visitsRequired: 8,
+          circleColor: "#1FA2C9",
+        },
+        {
+          type: "Amount",
+          business: "The Gym Hub",
+          reward: "Discount Voucher",
+          bgColor: "purple",
+          earned: "Rs 25",
+          redeemed: "Rs 5",
+          balance: "Rs 20",
+          earnedColor: "orange", // ✅ orange
+          redeemedColor: "brown", // ✅ brown
+          balanceColor: "teal", // ✅ teal
+        },
+      ],
+
+      history: [
+        { shop: "Bella Salon", date: "Mar 22, 2026", reward: "Free Haircut" },
+        {
+          shop: "Fresh Eats",
+          date: "Mar 20, 2026",
+          reward: "Buy 1 Get 1 Meal",
+        },
+        { shop: "Coffee Palace", date: "Mar 18, 2026", reward: "Free Drink" },
+        {
+          shop: "The Gym Hub",
+          date: "Mar 15, 2026",
+          reward: "Discount Voucher",
         },
       ],
     },
+
     {
       name: "Mark Thompson",
       email: "mark@email.com",
+      phone: "+1 555-002",
+      membership: "Silver Member",
+      joined: "Feb 2025",
       visits: 15,
       rewards: 0,
-      joined: "Apr 2024",
+      favorite: "The Gym Hub",
+      lastVisit: "Mar 20, 2026",
+      connectedBusinesses: 2,
+      cards: [
+        {
+          type: "Point",
+          business: "The Gym Hub",
+          reward: "Free Training Session",
+          bgColor: "#1E3A5F",
+          progress: 3,
+          visitsRequired: 5, // ✅ total visits required
+          circleColor: "#1FA2C9",
+        },
+        {
+          type: "Amount",
+          business: "The Gym Hub",
+          reward: "Discount Voucher",
+          bgColor: "green",
+          earned: "Rs 25",
+          redeemed: "Rs 5",
+          balance: "Rs 20",
+          earnedColor: "#4CAF50", // ✅ green
+          redeemedColor: "#F44336", // ✅ red
+          balanceColor: "#2196F3", // ✅ blue
+        },
+      ],
       history: [
+        { shop: "Coffee Palace", date: "Mar 18, 2026", reward: "Free Drink" },
         {
           shop: "The Gym Hub",
-          date: "Mar 20, 2026",
-          reward: "1 Month Free Gym Pass",
-        },
-        { shop: "Fresh Eats", date: "Mar 24, 2026" },
-        { shop: "Coffee Palace", date: "Mar 22, 2026", reward: "Free Drink" },
-        { shop: "The Gym Hub", date: "Mar 20, 2026" },
-        {
-          shop: "Bella Salon",
-          date: "Mar 18, 2026",
-          reward: "20% Off Next Visit",
+          date: "Mar 15, 2026",
+          reward: "Discount Voucher",
         },
       ],
     },
     {
       name: "Priya Singh",
       email: "priya@email.com",
+      phone: "+1 555-003",
+      membership: "Platinum Member",
+      joined: "Mar 2024",
       visits: 71,
       rewards: 6,
-      joined: "Jan 2024",
-      history: [
+      favorite: "Coffee Palace",
+      lastVisit: "Mar 26, 2026",
+      connectedBusinesses: 3, // ✅ 3 businesses
+      cards: [
         {
-          shop: "Coffee Palace",
-          date: "Mar 26, 2026",
-          reward: "Free Coffee Next Visit",
+          type: "Point",
+          business: "Coffee Palace",
+          reward: "Free Drink",
+          bgColor: "#1E3A5F",
+          progress: 5,
+          visitsRequired: 10,
+          circleColor: "#1FA2C9",
         },
-        { shop: "Fresh Eats", date: "Mar 24, 2026" },
-        { shop: "Coffee Palace", date: "Mar 22, 2026", reward: "Free Drink" },
-        { shop: "The Gym Hub", date: "Mar 20, 2026" },
         {
-          shop: "Bella Salon",
-          date: "Mar 18, 2026",
-          reward: "20% Off Next Visit",
+          type: "Point",
+          business: "Fresh Eats",
+          reward: "BOGO Meal",
+          bgColor: "darkred",
+          progress: 7,
+          visitsRequired: 12,
+          circleColor: "orange",
+        },
+        {
+          type: "Amount",
+          business: "Bella Salon",
+          reward: "Discount Voucher",
+          bgColor: "green",
+          earned: "Rs 50",
+          redeemed: "Rs 20",
+          balance: "Rs 30",
+          earnedColor: "#4CAF50",
+          redeemedColor: "#F44336",
+          balanceColor: "#2196F3",
         },
       ],
-    },
-    {
-      name: "Carlos Ruiz",
-      email: "carlos@email.com",
-      visits: 24,
-      rewards: 1,
-      joined: "Feb 2024",
       history: [
-        {
-          shop: "Tea House",
-          date: "Mar 24, 2026",
-          reward: "Buy 1 Get 1 Free",
-        },
+        { shop: "Coffee Palace", date: "Mar 26, 2026", reward: "10% Discount" },
         { shop: "Fresh Eats", date: "Mar 24, 2026" },
-        { shop: "Coffee Palace", date: "Mar 22, 2026", reward: "Free Drink" },
-        { shop: "The Gym Hub", date: "Mar 20, 2026" },
         {
           shop: "Bella Salon",
           date: "Mar 18, 2026",
@@ -142,26 +296,58 @@ const Customer = ({ collapsed, setCollapsed }) => {
     {
       name: "Emma Wilson",
       email: "emma@email.com",
+      phone: "+1 555-004",
+      membership: "Gold Member",
+      joined: "Apr 2025",
       visits: 9,
       rewards: 0,
-      joined: "May 2024",
+      favorite: "Burger World",
+      lastVisit: "Mar 18, 2026",
+      connectedBusinesses: 3, // ✅ 3 businesses
+      cards: [
+        {
+          type: "Amount",
+          business: "Burger World",
+          reward: "Discount Voucher",
+          bgColor: "green",
+          earned: "Rs 40",
+          redeemed: "Rs 10",
+          balance: "Rs 30",
+          earnedColor: "#4CAF50",
+          redeemedColor: "#F44336",
+          balanceColor: "#2196F3",
+        },
+
+        {
+          type: "Point",
+          business: "Fresh Eats",
+          reward: "BOGO Meal",
+          bgColor: "darkred",
+          progress: 4,
+          visitsRequired: 8,
+          circleColor: "black",
+        },
+        {
+          type: "Amount",
+          business: "Coffee Palace",
+          reward: "Free Drink",
+          bgColor: "purple",
+          earned: "Rs 25",
+          redeemed: "Rs 5",
+          balance: "Rs 20",
+          earnedColor: "orange",
+          redeemedColor: "brown",
+          balanceColor: "teal",
+        },
+      ],
       history: [
-        {
-          shop: "Burger World",
-          date: "Mar 18, 2026",
-          reward: "Free Fries on 6th Visit",
-        },
-        { shop: "Fresh Eats", date: "Mar 24, 2026" },
-        { shop: "Coffee Palace", date: "Mar 22, 2026", reward: "Free Drink" },
-        { shop: "The Gym Hub", date: "Mar 20, 2026" },
-        {
-          shop: "Bella Salon",
-          date: "Mar 18, 2026",
-          reward: "20% Off Next Visit",
-        },
+        { shop: "Burger World", date: "Mar 18, 2026" },
+        { shop: "Coffee Palace", date: "Mar 16, 2026", reward: "Free Drink" },
+        { shop: "Fresh Eats", date: "Mar 14, 2026" },
       ],
     },
   ];
+
   return (
     <div
       style={{
@@ -538,8 +724,6 @@ const Customer = ({ collapsed, setCollapsed }) => {
           </tbody>
         </table>
       </div>
-
-      {/* Modal */}
       {selectedCustomer && (
         <div
           style={{
@@ -560,243 +744,460 @@ const Customer = ({ collapsed, setCollapsed }) => {
               backgroundColor: "#fff",
               padding: "30px",
               borderRadius: "16px",
-              width: "600px",
-              height: "80vh", // ✅ card lamba
+              width: "1100px",
+              height: "700px",
               boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
               fontFamily: "Arial, sans-serif",
-              display: "flex",
-              flexDirection: "column",
+              overflowY: "auto", // ✅ scroll enable
             }}
           >
-            <h2
-              style={{
-                marginBottom: "6px",
-                color: "#0E2A47",
-                fontWeight: "bold",
-              }}
-            >
-              {selectedCustomer.name}
-            </h2>
-            <p
-              style={{
-                margin: "0 0 12px 0",
-                color: "#777",
-                fontSize: "14px",
-              }}
-            >
-              {selectedCustomer.email}
+            {/* Header with name only */}
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <h2 style={{ margin: 0, color: "#0E2A47" }}>
+                {selectedCustomer.name}'s Profile
+              </h2>
+            </div>
+            <p style={{ color: "#777", marginTop: "4px" }}>
+              Customer overview and active reward cards
             </p>
 
-            {/* Progress bar */}
-            <label
-              style={{ fontSize: "13px", color: "#555", fontWeight: "bold" }}
-            >
-              Loyalty Progress
-            </label>
+            {/* Profile section */}
             <div
               style={{
-                background: "#eee",
-                borderRadius: "8px",
-                overflow: "hidden",
-                margin: "8px 0 15px 0",
+                display: "flex",
+                alignItems: "flex-start",
+                gap: "20px",
+                marginTop: "20px",
+                padding: "20px",
+                border: "1px solid #eee",
+                borderRadius: "12px",
+                backgroundColor: "#fafafa",
               }}
             >
+              {/* Avatar circle */}
               <div
                 style={{
-                  width: `${(selectedCustomer.visits / 100) * 100}%`,
+                  width: "70px",
+                  height: "70px",
+                  borderRadius: "50%",
                   background: "linear-gradient(90deg, #1E3A5F, #1FA2C9)",
-                  height: "12px",
-                }}
-              ></div>
-            </div>
-            <p
-              style={{
-                fontSize: "12px",
-                color: "#555",
-                marginBottom: "20px",
-              }}
-            >
-              Next tier: Keep visiting!
-            </p>
-            {/* Summary boxes */}
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(3, 1fr)",
-                gap: "12px",
-                marginBottom: "25px",
-              }}
-            >
-              {/* Total Visits */}
-              <div
-                style={{
-                  backgroundColor: "#f9f9f9",
-                  padding: "12px",
-                  borderRadius: "10px",
-                  textAlign: "center",
-                  boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
+                  color: "#fff",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontWeight: "bold",
+                  fontSize: "24px",
+                  flexShrink: 0,
                 }}
               >
-                <FaQrcode
-                  style={{
-                    color: "#1E3A5F",
-                    fontSize: "20px",
-                    marginBottom: "6px",
-                  }}
-                />
-                <h3
-                  style={{
-                    margin: 0,
-                    color: "#0E2A47",
-                    fontWeight: "bold",
-                    fontSize: "20px",
-                  }}
-                >
-                  {selectedCustomer.visits}
-                </h3>
-                <p style={{ margin: 0, fontSize: "16px", color: "#777" }}>
-                  Total Visits
-                </p>
+                {selectedCustomer.name.charAt(0)}
               </div>
 
-              {/* Rewards */}
+              {/* Details grid */}
               <div
                 style={{
-                  backgroundColor: "#f9f9f9",
-                  padding: "12px",
-                  borderRadius: "10px",
-                  textAlign: "center",
-                  boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
+                  flex: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "20px",
                 }}
               >
-                <FaGift
-                  style={{
-                    color: "green",
-                    fontSize: "20px",
-                    marginBottom: "6px",
-                  }}
-                />
-                <h3
-                  style={{
-                    margin: 0,
-                    color: "green",
-                    fontWeight: "bold",
-                    fontSize: "20px",
-                  }}
-                >
-                  {selectedCustomer.rewards}
-                </h3>
-                <p style={{ margin: 0, fontSize: "16px", color: "#777" }}>
-                  Rewards
-                </p>
-              </div>
-
-              {/* Joined */}
-              <div
-                style={{
-                  backgroundColor: "#f9f9f9",
-                  padding: "12px",
-                  borderRadius: "10px",
-                  textAlign: "center",
-                  boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
-                }}
-              >
-                <FaClock
-                  style={{
-                    color: "#555",
-                    fontSize: "20px",
-                    marginBottom: "6px",
-                  }}
-                />
-                <h3
-                  style={{
-                    margin: 0,
-                    color: "#0E2A47",
-                    fontWeight: "bold",
-                    fontSize: "20px",
-                  }}
-                >
-                  {selectedCustomer.joined}
-                </h3>
-                <p style={{ margin: 0, fontSize: "16px", color: "#777" }}>
-                  Joined
-                </p>
-              </div>
-            </div>
-
-            {/* Recent Visit History */}
-            <h3 style={{ marginBottom: "10px", color: "#0E2A47" }}>
-              Recent Visit History
-            </h3>
-
-            <div
-              style={{
-                flex: 1, // ✅ take remaining space
-                overflowY: "auto", // ✅ inner scroll only
-                paddingRight: "6px",
-              }}
-            >
-              {selectedCustomer.history.map((h, idx) => (
+                {/* First row: Name, Email, Phone */}
                 <div
-                  key={idx}
                   style={{
-                    backgroundColor: "#fff",
-                    borderRadius: "10px",
-                    padding: "12px 16px",
-                    boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: "10px",
+                    display: "grid",
+                    gridTemplateColumns: "repeat(3, 1fr)",
+                    gap: "12px",
                   }}
                 >
-                  {/* Left side: shop + date */}
-                  <div style={{ display: "flex", flexDirection: "column" }}>
-                    <span style={{ fontWeight: "bold", color: "#0E2A47" }}>
-                      {h.shop}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      border: "1px solid #ddd",
+                      borderRadius: "8px",
+                      padding: "8px",
+                      backgroundColor: "#fff",
+                    }}
+                  >
+                    <FaUser style={{ color: "#1E3A5F" }} />
+                    <span>
+                      <b>Name:</b> {selectedCustomer.name}
                     </span>
-                    <span style={{ fontSize: "12px", color: "#777" }}>
-                      {h.date}
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      border: "1px solid #ddd",
+                      borderRadius: "8px",
+                      padding: "8px",
+                      backgroundColor: "#fff",
+                    }}
+                  >
+                    <FaEnvelope style={{ color: "#1E3A5F" }} />
+                    <span>
+                      <b>Email:</b> {selectedCustomer.email}
+                    </span>
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      border: "1px solid #ddd",
+                      borderRadius: "8px",
+                      padding: "8px",
+                      backgroundColor: "#fff",
+                    }}
+                  >
+                    <FaPhone style={{ color: "#1E3A5F" }} />
+                    <span>
+                      <b>Phone:</b> {selectedCustomer.phone}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Second row: Joined, Visits, Rewards */}
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(3, 1fr)",
+                    gap: "12px",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      border: "1px solid #ddd",
+                      borderRadius: "8px",
+                      padding: "8px",
+                      backgroundColor: "#fff",
+                    }}
+                  >
+                    <FaCalendarAlt style={{ color: "#1E3A5F" }} />
+                    <span>
+                      <b>Joined:</b> {selectedCustomer.joined}
+                    </span>
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      border: "1px solid #ddd",
+                      borderRadius: "8px",
+                      padding: "8px",
+                      backgroundColor: "#fff",
+                    }}
+                  >
+                    <FaQrcode style={{ color: "#1E3A5F" }} />
+                    <span>
+                      <b>Total Visits:</b> {selectedCustomer.visits}
+                    </span>
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      border: "1px solid #ddd",
+                      borderRadius: "8px",
+                      padding: "8px",
+                      backgroundColor: "#fff",
+                    }}
+                  >
+                    <FaGift style={{ color: "green" }} />
+                    <span>
+                      <b>Rewards Claimed:</b> {selectedCustomer.rewards}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Extra info section */}
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "center", // ✅ horizontally center
+                    gap: "40px",
+                    marginTop: "10px",
+                    width: "100%",
+                  }}
+                >
+                  {/* Favorite */}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                    }}
+                  >
+                    <FaMapMarkerAlt
+                      style={{ color: "red", fontSize: "18px" }}
+                    />
+                    <span style={{ color: "#333", fontSize: "14px" }}>
+                      <b>Favorite:</b> {selectedCustomer.favorite}
                     </span>
                   </div>
 
-                  {/* Right side: reward badge */}
-                  {h.reward && (
-                    <span
-                      style={{
-                        backgroundColor: "#E6F4EA",
-                        color: "green",
-                        padding: "4px 10px",
-                        borderRadius: "20px",
-                        fontSize: "12px",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {h.reward}
+                  {/* Last Visit */}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                    }}
+                  >
+                    <FaClock style={{ color: "#555", fontSize: "18px" }} />
+                    <span style={{ color: "#333", fontSize: "14px" }}>
+                      <b>Last Visit:</b> {selectedCustomer.lastVisit}
                     </span>
-                  )}
+                  </div>
+
+                  {/* Connected Businesses */}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                    }}
+                  >
+                    <FaUsers style={{ color: "#1E3A5F", fontSize: "18px" }} />
+                    <span style={{ color: "#333", fontSize: "14px" }}>
+                      <b>Connected with:</b>{" "}
+                      {selectedCustomer.connectedBusinesses} businesses
+                    </span>
+                  </div>
                 </div>
-              ))}
+              </div>
             </div>
 
-            {/* Sticky Close button */}
-            <div style={{ marginTop: "15px" }}>
-              <button
-                style={{
-                  padding: "10px 16px",
-                  background: "linear-gradient(90deg, #1E3A5F, #1FA2C9)",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "8px",
-                  fontWeight: "bold",
-                  cursor: "pointer",
-                  width: "100%",
-                }}
-                onClick={() => setSelectedCustomer(null)}
+            {/* Active Reward Cards Section */}
+            <div style={{ marginTop: "30px" }}>
+              <h3 style={{ color: "#1E3A5F", marginBottom: "15px" }}>
+                Active Reward Cards ({selectedCustomer.cards?.length || 0})
+              </h3>
+
+              <div
+                style={
+                  selectedCustomer.name === "Aisha Khan"
+                    ? {
+                        display: "grid",
+                        gridTemplateColumns: "repeat(2, 1fr)",
+                        gap: "20px",
+                      }
+                    : selectedCustomer.name === "Sarah Mitchell"
+                      ? {
+                          display: "flex",
+                          gap: "20px",
+                          flexWrap: "nowrap", // ✅ ek hi row me rakhega
+                          overflowX: "auto", // ✅ agar screen chhoti ho to scroll ho jayega
+                        }
+                      : {
+                          display: "flex",
+                          gap: "20px",
+                          flexWrap: "wrap",
+                        }
+                }
               >
-                Close
-              </button>
+                {selectedCustomer.cards &&
+                  selectedCustomer.cards.map((card, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        borderRadius: "12px",
+                        padding: "27px",
+                        backgroundColor: card.bgColor || "#1E3A5F",
+                        color: "#fff",
+                        boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+
+                        // ✅ Sarah ke liye wider cards
+                        flex:
+                          selectedCustomer.name === "Sarah Mitchell"
+                            ? "0 0 326px"
+                            : "1 1 280px",
+                        minHeight:
+                          selectedCustomer.name === "Sarah Mitchell"
+                            ? "240px"
+                            : "auto",
+                      }}
+                    >
+                      {card.type.toLowerCase() === "point" ? (
+                        <>
+                          {/* Point Card UI */}
+                          <div
+                            style={{ fontWeight: "bold", marginBottom: "8px" }}
+                          >
+                            POINT CARD
+                          </div>
+                          <div
+                            style={{
+                              fontSize: "16px",
+                              fontWeight: "600",
+                              marginBottom: "6px",
+                            }}
+                          >
+                            {card.business}
+                          </div>
+                          <div
+                            style={{ fontSize: "14px", marginBottom: "10px" }}
+                          >
+                            Reward: {card.reward}
+                          </div>
+
+                          {/* Progress Tracker */}
+                          <div style={{ marginTop: "15px" }}>
+                            <div
+                              style={{ fontSize: "14px", marginBottom: "6px" }}
+                            >
+                              Visits required: {card.visitsRequired}
+                            </div>
+                            {/* ✅ Yahan tumhari line use hoti hai */}
+                            <div
+                              style={{
+                                display: "flex",
+                                gap: "6px",
+                                flexWrap: "wrap",
+                              }}
+                            >
+                              {[...Array(card.visitsRequired)].map((_, i) => (
+                                <div
+                                  key={i}
+                                  style={{
+                                    width: "24px",
+                                    height: "24px",
+                                    borderRadius: "50%",
+                                    backgroundColor:
+                                      i < card.progress
+                                        ? card.circleColor
+                                        : "transparent",
+                                    color:
+                                      i < card.progress
+                                        ? "#fff"
+                                        : card.circleColor,
+                                    border: `1px solid ${card.circleColor}`,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontSize: "12px",
+                                    fontWeight: "bold",
+                                  }}
+                                >
+                                  {i + 1}
+                                </div>
+                              ))}
+                            </div>
+                            <div style={{ marginTop: "6px", fontSize: "12px" }}>
+                              {card.progress} / {card.visitsRequired} pts
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          {/* Amount Card UI */}
+                          <div
+                            style={{ fontWeight: "bold", marginBottom: "8px" }}
+                          >
+                            AMOUNT CARD
+                          </div>
+                          <div
+                            style={{
+                              fontSize: "16px",
+                              fontWeight: "600",
+                              marginBottom: "6px",
+                            }}
+                          >
+                            {card.business}
+                          </div>
+                          <div
+                            style={{ fontSize: "14px", marginBottom: "10px" }}
+                          >
+                            Reward: {card.reward}
+                          </div>
+
+                          {/* Earned / Redeemed / Balance */}
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "10px",
+                              marginTop: "10px",
+                            }}
+                          >
+                            <div
+                              style={{
+                                flex: 1,
+                                backgroundColor: card.earnedColor || "#4CAF50", // ✅ dynamic
+                                padding: "8px",
+                                borderRadius: "6px",
+                                textAlign: "center",
+                              }}
+                            >
+                              <div>Earned</div>
+                              <div>{card.earned || "Rs 0"}</div>
+                            </div>
+
+                            <div
+                              style={{
+                                flex: 1,
+                                backgroundColor:
+                                  card.redeemedColor || "#F44336", // ✅ dynamic
+                                padding: "8px",
+                                borderRadius: "6px",
+                                textAlign: "center",
+                              }}
+                            >
+                              <div>Redeemed</div>
+                              <div>{card.redeemed || "Rs 0"}</div>
+                            </div>
+
+                            <div
+                              style={{
+                                flex: 1,
+                                backgroundColor: card.balanceColor || "#2196F3", // ✅ dynamic
+                                padding: "8px",
+                                borderRadius: "6px",
+                                textAlign: "center",
+                              }}
+                            >
+                              <div>Balance</div>
+                              <div>{card.balance || "Rs 0"}</div>
+                            </div>
+                          </div>
+
+                          {/* Expiry */}
+                          <div style={{ marginTop: "12px", fontSize: "12px" }}>
+                            Expires Sep 30, 2026
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  ))}
+              </div>
             </div>
+
+            {/* Close Button */}
+            <button
+              style={{
+                marginTop: "20px",
+                padding: "10px 16px",
+                background: "linear-gradient(90deg, #1E3A5F, #1FA2C9)",
+                color: "#fff",
+                border: "none",
+                borderRadius: "8px",
+                fontWeight: "bold",
+                cursor: "pointer",
+                width: "100%",
+              }}
+              onClick={() => setSelectedCustomer(null)}
+            >
+              Close
+            </button>
           </div>
         </div>
       )}

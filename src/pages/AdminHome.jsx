@@ -353,58 +353,57 @@ const AdminHome = () => {
               </>
             )}
           </NavLink>
-          </div>
-
-          {/* Separator line above logout */}
-          <div
-            style={{
-              borderTop: "1px solid #ccc",
-              marginTop: "100px",
-            }}
-          >
-            <NavLink
-              to="/"
-              style={({ isActive }) => ({
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: "10px",
-                color: "#fff",
-                textDecoration: "none",
-                fontWeight: "500",
-                fontSize: "16px",
-                backgroundColor: isActive ? "#000" : "transparent",
-                padding: "10px",
-                borderRadius: "6px",
-                transition: "all 0.3s ease",
-               
-              })}
-            >
-              {({ isActive }) => (
-                <>
-                  {/* Left side: icon + text */}
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "10px",
-                    }}
-                  >
-                    <FaSignOutAlt style={{ fontSize: "18px" }} />
-                    {!collapsed && (
-                      <span style={{ whiteSpace: "nowrap" }}>Logout</span>
-                    )}
-                  </div>
-
-                  {/* Right side: arrow only when active */}
-                  {isActive && !collapsed && (
-                    <span style={{ fontSize: "14px", color: "#fff" }}>➔</span>
-                  )}
-                </>
-              )}
-            </NavLink>
-          </div>
         </div>
+
+        {/* Separator line above logout */}
+        <div
+          style={{
+            borderTop: "1px solid #ccc",
+            marginTop: "100px",
+          }}
+        >
+          <NavLink
+            to="/"
+            style={({ isActive }) => ({
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "10px",
+              color: "#fff",
+              textDecoration: "none",
+              fontWeight: "500",
+              fontSize: "16px",
+              backgroundColor: isActive ? "#000" : "transparent",
+              padding: "10px",
+              borderRadius: "6px",
+              transition: "all 0.3s ease",
+            })}
+          >
+            {({ isActive }) => (
+              <>
+                {/* Left side: icon + text */}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                  }}
+                >
+                  <FaSignOutAlt style={{ fontSize: "18px" }} />
+                  {!collapsed && (
+                    <span style={{ whiteSpace: "nowrap" }}>Logout</span>
+                  )}
+                </div>
+
+                {/* Right side: arrow only when active */}
+                {isActive && !collapsed && (
+                  <span style={{ fontSize: "14px", color: "#fff" }}>➔</span>
+                )}
+              </>
+            )}
+          </NavLink>
+        </div>
+      </div>
 
       <div
         style={{
