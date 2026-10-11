@@ -20,10 +20,12 @@ import Offers from "./Offers.jsx";
 import AI from "./AI.jsx";
 import RewardsCards from "./RewardsCards.jsx";
 import Settings from "./Settings.jsx";
+import { useDispatch } from "react-redux";
+import { setUser } from "../redux/Slices/HomeDataSlice";
 
 const AdminHome = () => {
   const [collapsed, setCollapsed] = useState(false);
-
+  const dispatch = useDispatch();
   return (
     <div style={{ display: "flex" }}>
       {/* Sidebar */}
@@ -277,45 +279,6 @@ const AdminHome = () => {
           </NavLink>
 
           <NavLink
-            to="/AdminHome/analytics"
-            style={({ isActive }) => ({
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: "10px",
-              color: "#fff",
-              textDecoration: "none",
-              marginBottom: "15px",
-              marginTop: "-5px",
-              fontWeight: "500",
-              fontSize: "16px",
-              backgroundColor: isActive ? " #1E3A5F" : "transparent", // ✅ black when active
-              padding: "10px",
-              borderRadius: "6px",
-              transition: "all 0.3s ease",
-            })}
-          >
-            {({ isActive }) => (
-              <>
-                {/* Left side: icon + text */}
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "10px" }}
-                >
-                  <FaChartLine style={{ fontSize: "18px" }} />
-                  {!collapsed && (
-                    <span style={{ whiteSpace: "nowrap" }}>AI & Analytics</span>
-                  )}
-                </div>
-
-                {/* Right side: arrow only when active */}
-                {isActive && !collapsed && (
-                  <span style={{ fontSize: "14px", color: "#fff" }}>➔</span>
-                )}
-              </>
-            )}
-          </NavLink>
-
-          <NavLink
             to="/AdminHome/settings"
             style={({ isActive }) => ({
               display: "flex",
@@ -364,6 +327,7 @@ const AdminHome = () => {
         >
           <NavLink
             to="/"
+            onClick={() => dispatch(setUser({}))}
             style={({ isActive }) => ({
               display: "flex",
               alignItems: "center",

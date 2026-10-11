@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { supabase } from "../supabase";
 
 import {
   FaQrcode,
@@ -20,333 +21,96 @@ import {
 
 const Customer = ({ collapsed, setCollapsed }) => {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [customers, setCustomers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const customers = [
-    {
-      name: "Sarah Mitchell",
-      email: "sarah@email.com",
-      phone: "+1 555-001",
-      membership: "Gold Member",
-      joined: "Jan 2024",
-      visits: 47,
-      rewards: 3,
-      favorite: "Coffee Palace",
-      lastVisit: "Today",
-      connectedBusinesses: 3,
-      cards: [
-        {
-          type: "Point",
-          business: "Brew & Bean Coffee",
-          reward: "Free Item",
-          bgColor: "#1E3A5F",
-          progress: 4,
-          visitsRequired: 7, // ✅ add this
-          circleColor: "#1FA2C9",
-        },
-        {
-          type: "Amount",
-          business: "Urban Threads",
-          reward: "Discount",
-          bgColor: "green",
-          earned: "Rs 15",
-          redeemed: "Rs 0",
-          balance: "Rs 15",
-          earnedColor: "purple", // ✅ Sarah ke liye unique
-          redeemedColor: "orange", // ✅ Sarah ke liye unique
-          balanceColor: "teal", // ✅ Sarah ke liye unique
-        },
-        {
-          type: "Point",
-          business: "Slice House Pizza",
-          reward: "BOGO",
-          bgColor: "darkred",
-          progress: 6,
-          visitsRequired: 9, // ✅ add this
-          circleColor: "black",
-        },
-      ],
-      history: [
-        { shop: "Coffee Palace", date: "Mar 26, 2026", reward: "10% Discount" },
-        { shop: "Fresh Eats", date: "Mar 24, 2026" },
-        { shop: "Coffee Palace", date: "Mar 22, 2026", reward: "Free Drink" },
-        { shop: "The Gym Hub", date: "Mar 20, 2026" },
-        {
-          shop: "Bella Salon",
-          date: "Mar 18, 2026",
-          reward: "20% Off Next Visit",
-        },
-      ],
-    },
+  useEffect(() => {
+    fetchCustomers();
+  }, []);
 
-    {
-      name: "John Doe",
-      email: "john@email.com",
-      phone: "+1 555-002", // ✅ phone
-      membership: "Silver Member", // ✅ membership
-      favorite: "Fresh Eats", // ✅ favorite
-      lastVisit: "Yesterday", // ✅ last visit
-      connectedBusinesses: 2, // ✅ connected businesses
-      visits: 32,
-      rewards: 2,
-      joined: "Feb 2024",
+  const fetchCustomers = async () => {
+    try {
+      setLoading(true);
 
-      // ✅ Only 2 cards: one Point, one Amount
-      cards: [
-        {
-          type: "Point",
-          business: "Fresh Eats",
-          reward: "Buy 1 Get 1 Meal",
-          bgColor: "#1E3A5F",
-          progress: 10, // ✅ 10 visits completed
-          visitsRequired: 15, // ✅ total visits required
-          circleColor: "#1FA2C9",
-        },
+      const { data, error } = await supabase.functions.invoke("rapid-function");
 
-        {
-          type: "Amount",
-          business: "Coffee Palace",
-          reward: "Free Drink",
-          bgColor: "darkred",
-          earned: "Rs 20",
-          redeemed: "Rs 5",
-          balance: "Rs 15",
-        },
-      ],
+      if (error) {
+        console.error("Customer fetch error:", error);
+        return;
+      }
 
-      history: [
-        {
-          shop: "Fresh Eats",
-          date: "Mar 24, 2026",
-          reward: "Buy 1 Get 1 Meal",
-        },
-        { shop: "Coffee Palace", date: "Mar 22, 2026", reward: "Free Drink" },
-        { shop: "The Gym Hub", date: "Mar 20, 2026" },
-      ],
-    },
-    {
-      name: "Aisha Khan",
-      email: "aisha@email.com",
-      phone: "+1 555-003", // ✅ phone
-      membership: "Platinum Member", // ✅ membership
-      favorite: "Bella Salon", // ✅ favorite
-      lastVisit: "Mar 22, 2026", // ✅ last visit
-      connectedBusinesses: 4, // ✅ connected businesses
-      visits: 58,
-      rewards: 5,
-      joined: "Feb 2024",
+      console.log("CUSTOMERS FROM SUPABASE:", data);
 
-      // ✅ 2 Point Cards + 2 Amount Cards
-      cards: [
-        {
-          type: "Point",
-          business: "Fresh Eats",
-          reward: "Buy 1 Get 1 Meal",
-          bgColor: "darkred",
-          progress: 2,
-          visitsRequired: 5,
-          circleColor: "orange",
-        },
-        {
-          type: "Amount",
-          business: "Coffee Palace",
-          reward: "Free Drink",
-          bgColor: "green",
-          earned: "Rs 40",
-          redeemed: "Rs 10",
-          balance: "Rs 30",
-          earnedColor: "#4CAF50", // ✅ green
-          redeemedColor: "#F44336", // ✅ red
-          balanceColor: "#2196F3", // ✅ blue
-        },
-        {
-          type: "Point",
-          business: "Bella Salon",
-          reward: "Free Haircut",
-          bgColor: "#1E3A5F",
-          progress: 6,
-          visitsRequired: 8,
-          circleColor: "#1FA2C9",
-        },
-        {
-          type: "Amount",
-          business: "The Gym Hub",
-          reward: "Discount Voucher",
-          bgColor: "purple",
-          earned: "Rs 25",
-          redeemed: "Rs 5",
-          balance: "Rs 20",
-          earnedColor: "orange", // ✅ orange
-          redeemedColor: "brown", // ✅ brown
-          balanceColor: "teal", // ✅ teal
-        },
-      ],
+      const customerUsers = data?.users || [];
 
-      history: [
-        { shop: "Bella Salon", date: "Mar 22, 2026", reward: "Free Haircut" },
-        {
-          shop: "Fresh Eats",
-          date: "Mar 20, 2026",
-          reward: "Buy 1 Get 1 Meal",
-        },
-        { shop: "Coffee Palace", date: "Mar 18, 2026", reward: "Free Drink" },
-        {
-          shop: "The Gym Hub",
-          date: "Mar 15, 2026",
-          reward: "Discount Voucher",
-        },
-      ],
-    },
+      const formattedCustomers = customerUsers.map((user) => {
+        const meta = user.user_metadata || {};
 
-    {
-      name: "Mark Thompson",
-      email: "mark@email.com",
-      phone: "+1 555-002",
-      membership: "Silver Member",
-      joined: "Feb 2025",
-      visits: 15,
-      rewards: 0,
-      favorite: "The Gym Hub",
-      lastVisit: "Mar 20, 2026",
-      connectedBusinesses: 2,
-      cards: [
-        {
-          type: "Point",
-          business: "The Gym Hub",
-          reward: "Free Training Session",
-          bgColor: "#1E3A5F",
-          progress: 3,
-          visitsRequired: 5, // ✅ total visits required
-          circleColor: "#1FA2C9",
-        },
-        {
-          type: "Amount",
-          business: "The Gym Hub",
-          reward: "Discount Voucher",
-          bgColor: "green",
-          earned: "Rs 25",
-          redeemed: "Rs 5",
-          balance: "Rs 20",
-          earnedColor: "#4CAF50", // ✅ green
-          redeemedColor: "#F44336", // ✅ red
-          balanceColor: "#2196F3", // ✅ blue
-        },
-      ],
-      history: [
-        { shop: "Coffee Palace", date: "Mar 18, 2026", reward: "Free Drink" },
-        {
-          shop: "The Gym Hub",
-          date: "Mar 15, 2026",
-          reward: "Discount Voucher",
-        },
-      ],
-    },
-    {
-      name: "Priya Singh",
-      email: "priya@email.com",
-      phone: "+1 555-003",
-      membership: "Platinum Member",
-      joined: "Mar 2024",
-      visits: 71,
-      rewards: 6,
-      favorite: "Coffee Palace",
-      lastVisit: "Mar 26, 2026",
-      connectedBusinesses: 3, // ✅ 3 businesses
-      cards: [
-        {
-          type: "Point",
-          business: "Coffee Palace",
-          reward: "Free Drink",
-          bgColor: "#1E3A5F",
-          progress: 5,
-          visitsRequired: 10,
-          circleColor: "#1FA2C9",
-        },
-        {
-          type: "Point",
-          business: "Fresh Eats",
-          reward: "BOGO Meal",
-          bgColor: "darkred",
-          progress: 7,
-          visitsRequired: 12,
-          circleColor: "orange",
-        },
-        {
-          type: "Amount",
-          business: "Bella Salon",
-          reward: "Discount Voucher",
-          bgColor: "green",
-          earned: "Rs 50",
-          redeemed: "Rs 20",
-          balance: "Rs 30",
-          earnedColor: "#4CAF50",
-          redeemedColor: "#F44336",
-          balanceColor: "#2196F3",
-        },
-      ],
-      history: [
-        { shop: "Coffee Palace", date: "Mar 26, 2026", reward: "10% Discount" },
-        { shop: "Fresh Eats", date: "Mar 24, 2026" },
-        {
-          shop: "Bella Salon",
-          date: "Mar 18, 2026",
-          reward: "20% Off Next Visit",
-        },
-      ],
-    },
-    {
-      name: "Emma Wilson",
-      email: "emma@email.com",
-      phone: "+1 555-004",
-      membership: "Gold Member",
-      joined: "Apr 2025",
-      visits: 9,
-      rewards: 0,
-      favorite: "Burger World",
-      lastVisit: "Mar 18, 2026",
-      connectedBusinesses: 3, // ✅ 3 businesses
-      cards: [
-        {
-          type: "Amount",
-          business: "Burger World",
-          reward: "Discount Voucher",
-          bgColor: "green",
-          earned: "Rs 40",
-          redeemed: "Rs 10",
-          balance: "Rs 30",
-          earnedColor: "#4CAF50",
-          redeemedColor: "#F44336",
-          balanceColor: "#2196F3",
-        },
+        return {
+          id: user.id,
 
-        {
-          type: "Point",
-          business: "Fresh Eats",
-          reward: "BOGO Meal",
-          bgColor: "darkred",
-          progress: 4,
-          visitsRequired: 8,
-          circleColor: "black",
-        },
-        {
-          type: "Amount",
-          business: "Coffee Palace",
-          reward: "Free Drink",
-          bgColor: "purple",
-          earned: "Rs 25",
-          redeemed: "Rs 5",
-          balance: "Rs 20",
-          earnedColor: "orange",
-          redeemedColor: "brown",
-          balanceColor: "teal",
-        },
-      ],
-      history: [
-        { shop: "Burger World", date: "Mar 18, 2026" },
-        { shop: "Coffee Palace", date: "Mar 16, 2026", reward: "Free Drink" },
-        { shop: "Fresh Eats", date: "Mar 14, 2026" },
-      ],
-    },
-  ];
+          name: meta.full_name || meta.name || "Customer",
+
+          email: user.email || "",
+
+          phone: meta.phone || "-",
+
+          membership: meta.membership || "Customer",
+
+          joined: user.created_at
+            ? new Date(user.created_at).toLocaleDateString()
+            : "-",
+
+          visits: 0,
+          rewards: 0,
+
+          favorite: "-",
+          lastVisit: "-",
+
+          connectedBusinesses: 0,
+
+          cards: [],
+          history: [],
+        };
+      });
+
+      setCustomers(formattedCustomers);
+
+      // Summary box counts
+      const totalCustomers = customers.length;
+      const platinumCustomers = customers.filter(
+        (customer) => customer.membership === "Platinum",
+      ).length;
+
+      const goldCustomers = customers.filter(
+        (customer) => customer.membership === "Gold",
+      ).length;
+
+      const totalRewards = customers.reduce(
+        (total, customer) => total + Number(customer.rewards || 0),
+        0,
+      );
+    } catch (err) {
+      console.error("Customer fetch error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const totalCustomers = customers.length;
+
+  const platinumCustomers = customers.filter(
+    (customer) => customer.membership === "Platinum",
+  ).length;
+
+  const goldCustomers = customers.filter(
+    (customer) => customer.membership === "Gold",
+  ).length;
+
+  const totalRewards = customers.reduce(
+    (total, customer) => total + Number(customer.rewards || 0),
+    0,
+  );
 
   return (
     <div
@@ -523,9 +287,12 @@ const Customer = ({ collapsed, setCollapsed }) => {
             textAlign: "center",
           }}
         >
-          <h3 style={{ margin: 0, color: "black", fontWeight: "bold" }}>7</h3>
+          <h3 style={{ margin: 0, color: "black", fontWeight: "bold" }}>
+            {customers.length}
+          </h3>
           <p style={{ margin: 0, color: "#717070" }}>Total Customers</p>
         </div>
+
         <div
           style={{
             backgroundColor: "#fff",
@@ -535,31 +302,9 @@ const Customer = ({ collapsed, setCollapsed }) => {
             textAlign: "center",
           }}
         >
-          <h3 style={{ margin: 0, color: "black", fontWeight: "bold" }}>2</h3>
-          <p style={{ margin: 0, color: "#717070" }}>Platinum</p>
-        </div>
-        <div
-          style={{
-            backgroundColor: "#fff",
-            padding: "20px",
-            borderRadius: "12px",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-            textAlign: "center",
-          }}
-        >
-          <h3 style={{ margin: 0, color: "black", fontWeight: "bold" }}>1</h3>
-          <p style={{ margin: 0, color: "#717070" }}>Gold</p>
-        </div>
-        <div
-          style={{
-            backgroundColor: "#fff",
-            padding: "20px",
-            borderRadius: "12px",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-            textAlign: "center",
-          }}
-        >
-          <h3 style={{ margin: 0, color: "black", fontWeight: "bold" }}>17</h3>
+          <h3 style={{ margin: 0, color: "black", fontWeight: "bold" }}>
+            {totalRewards}
+          </h3>
           <p style={{ margin: 0, color: "#717070" }}>Total Rewards</p>
         </div>
       </div>
@@ -601,14 +346,14 @@ const Customer = ({ collapsed, setCollapsed }) => {
           </thead>
           <tbody>
             {customers.map((c, i) => (
-              <tr key={i} style={{ borderBottom: "1px solid #eee" }}>
+              <tr key={c.id || i} style={{ borderBottom: "1px solid #eee" }}>
                 {/* Customer column */}
                 <td
                   style={{
                     padding: "12px 15px",
                     fontSize: "16px",
                     color: "#333",
-                    textAlign: "left", // ✅ thoda left
+                    textAlign: "left",
                   }}
                 >
                   <div
@@ -633,15 +378,31 @@ const Customer = ({ collapsed, setCollapsed }) => {
                         fontSize: "14px",
                       }}
                     >
-                      {c.name.charAt(0)}
+                      {c.name ? c.name.charAt(0) : "C"}
                     </div>
 
                     {/* Name + Email */}
-                    <div style={{ display: "flex", flexDirection: "column" }}>
-                      <span style={{ fontWeight: "bold", color: "#333" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontWeight: "bold",
+                          color: "#333",
+                        }}
+                      >
                         {c.name}
                       </span>
-                      <span style={{ fontSize: "12px", color: "#777" }}>
+
+                      <span
+                        style={{
+                          fontSize: "12px",
+                          color: "#777",
+                        }}
+                      >
                         {c.email}
                       </span>
                     </div>
@@ -654,10 +415,15 @@ const Customer = ({ collapsed, setCollapsed }) => {
                     padding: "12px 15px",
                     fontSize: "16px",
                     color: "#333",
-                    textAlign: "left", // ✅ left
+                    textAlign: "left",
                   }}
                 >
-                  <FaQrcode style={{ color: "#1E3A5F", marginRight: "6px" }} />{" "}
+                  <FaQrcode
+                    style={{
+                      color: "#1E3A5F",
+                      marginRight: "6px",
+                    }}
+                  />
                   {c.visits}
                 </td>
 
@@ -667,10 +433,15 @@ const Customer = ({ collapsed, setCollapsed }) => {
                     padding: "12px 15px",
                     fontSize: "16px",
                     color: "#333",
-                    textAlign: "left", // ✅ left
+                    textAlign: "left",
                   }}
                 >
-                  <FaGift style={{ color: "green", marginRight: "6px" }} />{" "}
+                  <FaGift
+                    style={{
+                      color: "green",
+                      marginRight: "6px",
+                    }}
+                  />
                   {c.rewards}
                 </td>
 
@@ -680,13 +451,17 @@ const Customer = ({ collapsed, setCollapsed }) => {
                     padding: "12px 15px",
                     fontSize: "16px",
                     color: "#333",
-                    textAlign: "left", // ✅ keep left
+                    textAlign: "left",
                   }}
                 >
                   <FaMapMarkerAlt
-                    style={{ color: "red", marginRight: "6px" }}
-                  />{" "}
-                  {c.history[0].shop}
+                    style={{
+                      color: "red",
+                      marginRight: "6px",
+                    }}
+                  />
+
+                  {c.history?.[0]?.shop || "-"}
                 </td>
 
                 {/* Last Visit */}
@@ -695,11 +470,17 @@ const Customer = ({ collapsed, setCollapsed }) => {
                     padding: "12px 15px",
                     fontSize: "16px",
                     color: "#333",
-                    textAlign: "left", // ✅ thoda left
+                    textAlign: "left",
                   }}
                 >
-                  <FaClock style={{ color: "#555", marginRight: "6px" }} />{" "}
-                  {c.history[0].date}
+                  <FaClock
+                    style={{
+                      color: "#555",
+                      marginRight: "6px",
+                    }}
+                  />
+
+                  {c.history?.[0]?.date || "-"}
                 </td>
 
                 {/* View */}
@@ -709,15 +490,21 @@ const Customer = ({ collapsed, setCollapsed }) => {
                     fontSize: "14px",
                     color: "#1E3A5F",
                     fontWeight: "bold",
-                    display: "flex",
                     textAlign: "right",
-
-                    gap: "6px",
                     cursor: "pointer",
                   }}
                   onClick={() => setSelectedCustomer(c)}
                 >
-                  <FaEye /> View
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                    }}
+                  >
+                    <FaEye />
+                    View
+                  </div>
                 </td>
               </tr>
             ))}

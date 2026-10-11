@@ -3,16 +3,62 @@ import { Link } from "react-router-dom";
 import React, { useState } from "react";
 
 import { FaEnvelope, FaLock, FaUser } from "react-icons/fa";
+import { supabase } from "../supabase";
+import { useDispatch } from "react-redux";
+import { setUser } from "../redux/Slices/HomeDataSlice";
+
+
+
+
 
 const SignUp = () => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  // handle button click
-  const handleSubmit = (e) => {
-    e.preventDefault(); // page reload stop
-    // agar koi field empty hai to browser apna default message show karega
-    alert(`Full Name: ${fullName}\nEmail: ${email}\nPassword: ${password}`);
+    const dispatch = useDispatch();
+
+   const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      // 1. Create Supabase Auth user
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            role: "student", // ✅ ya "business" jo tum chaho
+            fullName: fullName,
+          },
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      const user = data.user;
+      if (!user) {
+        throw new Error("User was not created");
+      }
+
+      // 2. Create object for Redux
+      const reduxUser = {
+        id: user.id,
+        email: user.email,
+        role: user.user_metadata?.role,
+        fullName: user.user_metadata?.fullName,
+      };
+
+      // 3. Save user to Redux
+      dispatch(setUser(reduxUser));
+
+      console.log("User saved to Redux:", reduxUser);
+      alert("Signup successful!");
+    } catch (error) {
+      console.log("Signup error:", error.message);
+      alert("Signup failed: " + error.message);
+    }
   };
 
   return (

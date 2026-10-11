@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   FaCamera,
   FaBell,
@@ -15,18 +15,174 @@ import {
   FaKey,
   FaUserPlus,
 } from "react-icons/fa";
-
-const admins = [
-  {
-    name: "Sara Ahmed",
-    role: "Admin",
-    email: "sara@smartvisit.com",
-    icon: <FaUser />,
-  },
-];
+import { supabase } from "../supabase";
 
 const Settings = ({ collapsed, setCollapsed }) => {
   const [showModal, setShowModal] = useState(false);
+
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [originalEmail, setOriginalEmail] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadAdminProfile = async () => {
+      const { data, error } = await supabase.auth.getUser();
+
+      if (!mounted) return;
+
+      if (error || !data.user) {
+        console.error("Logged-in admin error:", error);
+        setLoading(false);
+        return;
+      }
+
+      const user = data.user;
+
+      setFullName(
+        user.user_metadata?.full_name || user.user_metadata?.name || "",
+      );
+
+      setEmail(user.email || "");
+      setOriginalEmail(user.email || "");
+      setLoading(false);
+    };
+
+    loadAdminProfile();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const handleSaveChanges = async () => {
+    if (!fullName.trim() || !email.trim()) {
+      alert("Please enter your name and email.");
+      return;
+    }
+
+    setSaving(true);
+
+    try {
+      const updates = {
+        data: {
+          full_name: fullName.trim(),
+        },
+      };
+
+      if (email.trim().toLowerCase() !== originalEmail.toLowerCase()) {
+        updates.email = email.trim();
+      }
+
+      const { data, error } = await supabase.auth.updateUser(updates);
+
+      if (error) throw error;
+
+      const updatedUser = data.user;
+
+      setFullName(updatedUser.user_metadata?.full_name || fullName.trim());
+
+      setEmail(updatedUser.email || email.trim());
+      setOriginalEmail(updatedUser.email || email.trim());
+
+      alert(
+        email.trim().toLowerCase() !== originalEmail.toLowerCase()
+          ? "Profile updated. Check your email if confirmation is required."
+          : "Profile updated successfully!",
+      );
+    } catch (error) {
+      console.error("Profile update error:", error);
+      alert(error.message || "Could not update profile.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  useEffect(() => {
+    const loadAdminProfile = async () => {
+      const { data, error } = await supabase.auth.getUser();
+
+      if (error) {
+        console.error("Admin fetch error:", error.message);
+        return;
+      }
+
+      const user = data.user;
+
+      if (user) {
+        setFullName(
+          user.user_metadata?.display_name ||
+            user.user_metadata?.full_name ||
+            user.user_metadata?.name ||
+            user.user_metadata?.displayName ||
+            "",
+        );
+
+        setEmail(user.email || "");
+      }
+    };
+
+    loadAdminProfile();
+  }, []);
+
+  const handleResetPassword = async () => {
+    if (!email) {
+      alert("Admin email not found.");
+      return;
+    }
+
+    const confirmed = window.confirm(`Send a password reset link to ${email}?`);
+
+    if (!confirmed) return;
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+
+    if (error) {
+      alert("Error: " + error.message);
+      return;
+    }
+
+    alert("Password reset link has been sent to " + email);
+  };
+
+  const handleDeleteAdmin = async () => {
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      alert("Unable to identify the logged-in admin.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Permanently delete ${user.email}'s account? This action cannot be undone.`,
+    );
+
+    if (!confirmed) return;
+
+    const { error } = await supabase.functions.invoke("delete-own-admin", {
+      body: { userId: user.id },
+    });
+
+    if (error) {
+      alert("Delete failed: " + error.message);
+      return;
+    }
+
+    await supabase.auth.signOut();
+
+    alert("Account deleted successfully.");
+
+    window.location.href = "/login";
+  };
+
   return (
     <div
       style={{
@@ -192,7 +348,8 @@ const Settings = ({ collapsed, setCollapsed }) => {
               boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
             }}
           >
-            A{/* Camera Icon Overlay */}
+            {loading ? "..." : fullName.trim().charAt(0).toUpperCase() || "A"}
+            {/* Camera Icon Overlay */}
             <div
               style={{
                 position: "absolute",
@@ -214,17 +371,23 @@ const Settings = ({ collapsed, setCollapsed }) => {
           </div>
 
           {/* Full Name (Left) + Email (Right) */}
+
+          {/* Full Name + Email */}
           <div style={{ display: "flex", gap: "20px", flex: 1 }}>
-            {/* Full Name Left */}
             <div style={{ flex: 1 }}>
               <label style={{ fontWeight: "bold", color: "#333" }}>
                 Full Name
               </label>
+
               <input
                 type="text"
-                defaultValue="Admin User"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Enter your full name"
+                disabled={loading || saving}
                 style={{
                   width: "100%",
+                  boxSizing: "border-box",
                   padding: "10px",
                   marginTop: "6px",
                   borderRadius: "6px",
@@ -234,14 +397,18 @@ const Settings = ({ collapsed, setCollapsed }) => {
               />
             </div>
 
-            {/* Email Right */}
             <div style={{ flex: 1 }}>
               <label style={{ fontWeight: "bold", color: "#333" }}>Email</label>
+
               <input
                 type="email"
-                defaultValue="admin@smartvisit.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                disabled={loading || saving}
                 style={{
                   width: "100%",
+                  boxSizing: "border-box",
                   padding: "10px",
                   marginTop: "6px",
                   borderRadius: "6px",
@@ -509,7 +676,16 @@ const Settings = ({ collapsed, setCollapsed }) => {
 
         {/* Admin List */}
         <div>
-          {admins.map((admin, index) => (
+          {(email
+            ? [
+                {
+                  name: fullName || "Admin",
+                  role: "Admin",
+                  email: email,
+                },
+              ]
+            : []
+          ).map((admin, index) => (
             <div
               key={index}
               style={{
@@ -583,34 +759,36 @@ const Settings = ({ collapsed, setCollapsed }) => {
               {/* Right side: Actions */}
               <div style={{ display: "flex", gap: "10px" }}>
                 <button
+                  onClick={handleResetPassword}
                   style={{
                     backgroundColor: "#fff",
                     color: "#1E3A5F",
-                    padding: "12px 12px",
+                    padding: "12px",
                     borderRadius: "6px",
                     border: "1px solid #ddd",
                     cursor: "pointer",
                     display: "flex",
                     alignItems: "center",
                     gap: "6px",
-                    textAlign: "center",
                     fontWeight: "bold",
                   }}
                 >
                   <FaKey /> Reset Password
                 </button>
+
                 <button
+                  onClick={handleDeleteAdmin}
                   style={{
                     border: "1px solid #ddd",
                     backgroundColor: "#fff",
-
                     borderRadius: "6px",
-                    padding: "8px",
+                    padding: "12px",
                     cursor: "pointer",
                     color: "red",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
+                    gap: "6px",
                   }}
                 >
                   <FaTrash />
@@ -653,18 +831,22 @@ const Settings = ({ collapsed, setCollapsed }) => {
           >
             Cancel
           </button>
+
           <button
+            onClick={handleSaveChanges}
+            disabled={loading || saving}
             style={{
-              backgroundColor: "#1E3A5F", // dark blue primary button
+              backgroundColor: "#1E3A5F",
               color: "#fff",
               padding: "10px 20px",
               border: "none",
               borderRadius: "6px",
-              cursor: "pointer",
+              cursor: loading || saving ? "not-allowed" : "pointer",
               fontWeight: "bold",
+              opacity: loading || saving ? 0.7 : 1,
             }}
           >
-            Save Changes
+            {loading ? "Loading..." : saving ? "Saving..." : "Save Changes"}
           </button>
         </div>
       </div>

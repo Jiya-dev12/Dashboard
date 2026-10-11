@@ -11,10 +11,11 @@ import {
   FaRedo,
   FaBuilding,
   FaQrcode,
-  FaBars
+  FaBars,
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { supabase } from "../supabase";
 
 const rewardData = [
   {
@@ -44,79 +45,362 @@ const rewardData = [
 ];
 
 const OffersRewards = ({ collapsed, setCollapsed }) => {
-  const [activeTab, setActiveTab] = useState("offers"); // ✅ default Offers
+  const [activeTab, setActiveTab] = useState("offers");
   const [showModal, setShowModal] = useState(false);
   const [showOfferModal, setShowOfferModal] = useState(false);
-  const [offerData, setOfferData] = useState([
-    {
-      type: "Discount",
-      title: "10% Off Your Next Visit",
-      business: "Coffee Palace",
-      visits: "5 visits required",
-      expiry: "Expires: Dec 31, 2026",
-      redeemed: "142 times redeemed",
-      active: true,
-    },
-    {
-      type: "Free Service",
-      title: "1 Free Session after 15 Visits",
-      business: "Gym Hub",
-      visits:"15 visits required",
-      expiry: "No expiry",
-      redeemed: "12 times redeemed",
-      active: true,
-    },
 
-    {
-      type: "BOGO",
-      title: "Buy 1 Get 1 Meal",
-      business: "Fresh Eats",
-      visits: "8 visits required",
-      expiry: "Expires: Jun 30, 2026",
-      redeemed: "54 times redeemed",
-      active: false,
-    },
-    {
-      type: "Free Item",
-      title: "Free Hair Wash on 8th Visit",
-      business: "Bella Salon",
-      visits:"8 visits required",
-      expiry: "Expires: 30 Sep 2026",
-      redeemed: "30 times redeemed",
-      active: true,
-    },
+  const [offerData, setOfferData] = useState([]);
+  const [newOffer, setNewOffer] = useState({
+    title: "",
+    description: "",
+    offer_type: "",
+    discount_value: "",
+    expiry_date: "",
+  });
 
-    {
-      type: "BOGO",
-      title: "Buy 1 Get 1 Free",
-      business:"Tea House",
-      visits: "5 visits required",
-      expiry: "Expires: Dec 31, 2026",
-      redeemed:  "60 times redeemed",
-      active: true,
-    },
-    {
-      type: "Free item",
-      title: "Free Fries on 6th Visit",
-      business:  "Burger World",
-      visits:"6 visits required",
-      expiry: "No expiry",
-      redeemed: "12 times redeemed",
-      active: false,
-    },
-  ]);
+  const [loadingOffers, setLoadingOffers] = useState(true);
+
+  const [editingOffer, setEditingOffer] = useState(null);
+
+  const [editForm, setEditForm] = useState({
+    title: "",
+    description: "",
+    offer_type: "",
+    discount_value: "",
+    expiry_date: "",
+  });
+  // Summary calculations
   const totalOffers = offerData.length;
-  const activeOffers = offerData.filter((o) => o.active).length;
-  const totalRedeemed = offerData.reduce((sum, o) => {
-    const num = parseInt(o.redeemed);
+
+  const activeOffers = offerData.filter(
+    (offer) => offer.approval_status === "approved",
+  ).length;
+
+  const totalRedeemed = offerData.reduce((sum, offer) => {
+    const num = parseInt(offer.redeemed);
     return sum + (isNaN(num) ? 0 : num);
   }, 0);
 
-  const handleToggle = (index) => {
-    const updatedOffers = [...offerData];
-    updatedOffers[index].active = !updatedOffers[index].active;
-    setOfferData(updatedOffers);
+  const fetchOffers = async () => {
+    try {
+      setLoadingOffers(true);
+
+      const { data, error } = await supabase
+        .from("offers")
+        .select(
+          `
+        *,
+        business:business_id (
+          *
+        )
+      `,
+        )
+        .order("offer_id", { ascending: true });
+
+      console.log("OFFERS DATA FROM SUPABASE:", data);
+      console.log("OFFERS ERROR:", error);
+
+      if (error) {
+        console.error("OFFERS FETCH ERROR:", error);
+        alert(error.message);
+        return;
+      }
+
+      const formattedOffers = (data || []).map((offer) => ({
+        ...offer,
+
+        type: offer.offer_type || "Offer",
+
+        title: offer.title || "Untitled Offer",
+
+        description: offer.description || "No description",
+
+        // Business ka naam show karne ke liye
+        business:
+          offer.business?.business_name ||
+          offer.business?.name ||
+          offer.business?.title ||
+          offer.business_id ||
+          "Business",
+
+        visits: offer.discount_value
+          ? `${offer.discount_value} value`
+          : "Offer available",
+
+        expiry: offer.expiry_date
+          ? `Expires: ${offer.expiry_date}`
+          : "No expiry",
+
+        redeemed: "0 times redeemed",
+
+        active: offer.approval_status === "approved",
+      }));
+
+      console.log("FORMATTED OFFERS:", formattedOffers);
+
+      setOfferData(formattedOffers);
+    } catch (error) {
+      console.error("FETCH OFFERS ERROR:", error);
+    } finally {
+      setLoadingOffers(false);
+    }
   };
+
+  useEffect(() => {
+    fetchOffers();
+  }, []);
+
+  const handleToggle = async (index) => {
+    const offer = offerData[index];
+
+    if (!offer?.offer_id) {
+      console.error("Offer ID not found:", offer);
+      return;
+    }
+
+    // Current status check
+    const newStatus =
+      offer.approval_status === "approved" ? "pending" : "approved";
+
+    console.log("=================================");
+    console.log("OFFER ID:", offer.offer_id);
+    console.log("OLD STATUS:", offer.approval_status);
+    console.log("NEW STATUS:", newStatus);
+    console.log("=================================");
+
+    try {
+      const { data, error } = await supabase
+        .from("offers")
+        .update({
+          approval_status: newStatus,
+        })
+        .eq("offer_id", offer.offer_id)
+        .select();
+
+      console.log("UPDATE DATA:", data);
+      console.log("UPDATE ERROR:", error);
+
+      if (error) {
+        console.error("SUPABASE UPDATE ERROR:", error);
+        alert("Approval update failed: " + error.message);
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        console.error("No offer was updated.");
+        alert("Offer update nahi hui. Supabase RLS policy check karein.");
+        return;
+      }
+
+      // UI update
+      setOfferData((prev) =>
+        prev.map((item, i) =>
+          i === index
+            ? {
+                ...item,
+                approval_status: newStatus,
+                active: newStatus === "approved",
+              }
+            : item,
+        ),
+      );
+
+      console.log(
+        `Offer ${offer.offer_id} status successfully changed to ${newStatus}`,
+      );
+    } catch (error) {
+      console.error("TOGGLE ERROR:", error);
+      alert(error.message || "Failed to update offer");
+    }
+  };
+
+  // =========================
+  // EDIT OFFER
+  // =========================
+
+  const handleEdit = (offer) => {
+    console.log("EDIT OFFER:", offer);
+
+    setEditingOffer(offer);
+
+    setEditForm({
+      title: offer.title || "",
+      description: offer.description || "",
+      offer_type: offer.offer_type || "",
+      discount_value: offer.discount_value || "",
+      expiry_date: offer.expiry_date ? offer.expiry_date.split("T")[0] : "",
+    });
+  };
+
+  // =========================
+  // UPDATE OFFER
+  // =========================
+
+  const handleUpdateOffer = async () => {
+    if (!editingOffer?.offer_id) {
+      alert("Offer ID not found");
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from("offers")
+        .update({
+          title: editForm.title,
+          description: editForm.description,
+          offer_type: editForm.offer_type,
+          discount_value: editForm.discount_value,
+          expiry_date: editForm.expiry_date || null,
+        })
+        .eq("offer_id", editingOffer.offer_id)
+        .select();
+
+      console.log("UPDATED OFFER:", data);
+      console.log("UPDATE ERROR:", error);
+
+      if (error) {
+        console.error("UPDATE OFFER ERROR:", error);
+        alert(error.message);
+        return;
+      }
+
+      alert("Offer updated successfully!");
+
+      setEditingOffer(null);
+
+      // Fresh data Supabase se lao
+      fetchOffers();
+    } catch (error) {
+      console.error("UPDATE OFFER ERROR:", error);
+      alert(error.message || "Failed to update offer");
+    }
+  };
+
+  // =========================
+  // DELETE OFFER
+  // =========================
+
+  const handleDelete = async (offer) => {
+    if (!offer?.offer_id) {
+      alert("Offer ID not found");
+      return;
+    }
+
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete "${offer.title}"?`,
+    );
+
+    if (!confirmDelete) {
+      return;
+    }
+
+    try {
+      console.log("DELETING OFFER ID:", offer.offer_id);
+
+      const { data, error } = await supabase
+        .from("offers")
+        .delete()
+        .eq("offer_id", offer.offer_id)
+        .select("offer_id");
+
+      console.log("DELETE DATA:", data);
+      console.log("DELETE ERROR:", error);
+
+      if (error) {
+        console.error("DELETE OFFER ERROR:", error);
+        alert(error.message);
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        alert("Offer delete nahi hua. Supabase RLS policy check karein.");
+        return;
+      }
+
+      // Screen se bhi remove
+      setOfferData((prev) =>
+        prev.filter((item) => item.offer_id !== offer.offer_id),
+      );
+
+      alert("Offer deleted successfully!");
+    } catch (error) {
+      console.error("DELETE OFFER ERROR:", error);
+      alert(error.message || "Failed to delete offer");
+    }
+  };
+
+  const handleSaveOffer = async () => {
+    if (
+      !newOffer.title.trim() ||
+      !newOffer.description.trim() ||
+      !newOffer.offer_type ||
+      !newOffer.discount_value ||
+      !newOffer.expiry_date
+    ) {
+      alert("Please fill in all offer fields.");
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("offers")
+      .insert([
+        {
+          title: newOffer.title.trim(),
+          description: newOffer.description.trim(),
+          offer_type: newOffer.offer_type,
+          discount_value: Number(newOffer.discount_value),
+          expiry_date: newOffer.expiry_date,
+          approval_status: "pending",
+        },
+      ])
+      .select();
+
+    if (error) {
+      console.error("CREATE OFFER ERROR:", error);
+      alert("Offer save nahi hua: " + error.message);
+      return;
+    }
+
+    await fetchOffers();
+
+    setNewOffer({
+      title: "",
+      description: "",
+      offer_type: "",
+      discount_value: "",
+      expiry_date: "",
+    });
+
+    setShowOfferModal(false);
+    alert("Offer created successfully!");
+  };
+  const formatDateForInput = (dateValue) => {
+    if (!dateValue) return "";
+
+    // Already YYYY-MM-DD
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
+      return dateValue;
+    }
+
+    // Convert DD/MM/YYYY to YYYY-MM-DD
+    const match = dateValue.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+
+    if (match) {
+      return `${match[3]}-${match[2]}-${match[1]}`;
+    }
+
+    return "";
+  };
+  <input
+    type="date"
+    value={newOffer.expiry_date}
+    onChange={(e) =>
+      setNewOffer({
+        ...newOffer,
+        expiry_date: e.target.value,
+      })
+    }
+  />;
 
   return (
     <div
@@ -127,100 +411,100 @@ const OffersRewards = ({ collapsed, setCollapsed }) => {
       }}
     >
       <div
-             style={{
-               display: "flex",
-               justifyContent: "space-between",
-               alignItems: "center",
-               padding: "15px 30px",
-               backgroundColor: "#fff",
-               boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
-             }}
-           >
-             {/* Left side: Bars + Search */}
-             <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-               {/* Sidebar toggle (hamburger) */}
-               <button
-                 onClick={() => setCollapsed(!collapsed)}
-                 style={{
-                   background: "none",
-                   border: "none",
-                   cursor: "pointer",
-                   color: "#1E3A5F",
-                   fontSize: "22px",
-                 }}
-               >
-                 <FaBars />
-               </button>
-           
-               {/* Search bar */}
-               <div
-                 style={{
-                   display: "flex",
-                   alignItems: "center",
-                   backgroundColor: "#f1f3f4",
-                   borderRadius: "20px",
-                   padding: "6px 12px",
-                   width: "600px",
-                   gap: "8px",
-                 }}
-               >
-                 <FaSearch style={{ color: "#555", fontSize: "14px" }} />
-                 <input
-                   type="text"
-                   placeholder="Search..."
-                   style={{
-                     border: "none",
-                     outline: "none",
-                     background: "transparent",
-                     width: "100%",
-                     fontSize: "14px",
-                     color: "#555",
-                   }}
-                 />
-               </div>
-             </div>
-           
-             {/* Right side: bell + profile */}
-             <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-               <div style={{ position: "relative" }}>
-                 <FaBell style={{ fontSize: "20px", color: "#1E3A5F" }} />
-                 <span
-                   style={{
-                     position: "absolute",
-                     top: "-2px",
-                     right: "-2px",
-                     width: "8px",
-                     height: "8px",
-                     backgroundColor: "red",
-                     borderRadius: "50%",
-                   }}
-                 ></span>
-               </div>
-               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                 <div
-                   style={{
-                     width: "32px",
-                     height: "32px",
-                     borderRadius: "50%",
-                     backgroundColor: "#1E3A5F",
-                     color: "#fff",
-                     display: "flex",
-                     alignItems: "center",
-                     justifyContent: "center",
-                     fontWeight: "bold",
-                   }}
-                 >
-                   A
-                 </div>
-                 <div style={{ textAlign: "left" }}>
-                   <b>Admin</b>
-                   <p style={{ margin: 0, fontSize: "12px", color: "#777" }}>
-                     Super Admin
-                   </p>
-                 </div>
-               </div>
-             </div>
-           </div>
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "15px 30px",
+          backgroundColor: "#fff",
+          boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+        }}
+      >
+        {/* Left side: Bars + Search */}
+        <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+          {/* Sidebar toggle (hamburger) */}
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              color: "#1E3A5F",
+              fontSize: "22px",
+            }}
+          >
+            <FaBars />
+          </button>
+
+          {/* Search bar */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              backgroundColor: "#f1f3f4",
+              borderRadius: "20px",
+              padding: "6px 12px",
+              width: "600px",
+              gap: "8px",
+            }}
+          >
+            <FaSearch style={{ color: "#555", fontSize: "14px" }} />
+            <input
+              type="text"
+              placeholder="Search..."
+              style={{
+                border: "none",
+                outline: "none",
+                background: "transparent",
+                width: "100%",
+                fontSize: "14px",
+                color: "#555",
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Right side: bell + profile */}
+        <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+          <div style={{ position: "relative" }}>
+            <FaBell style={{ fontSize: "20px", color: "#1E3A5F" }} />
+            <span
+              style={{
+                position: "absolute",
+                top: "-2px",
+                right: "-2px",
+                width: "8px",
+                height: "8px",
+                backgroundColor: "red",
+                borderRadius: "50%",
+              }}
+            ></span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <div
+              style={{
+                width: "32px",
+                height: "32px",
+                borderRadius: "50%",
+                backgroundColor: "#1E3A5F",
+                color: "#fff",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: "bold",
+              }}
+            >
+              A
+            </div>
+            <div style={{ textAlign: "left" }}>
+              <b>Admin</b>
+              <p style={{ margin: 0, fontSize: "12px", color: "#777" }}>
+                Super Admin
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Page Heading */}
       <div style={{ padding: "20px", marginTop: "10px" }}>
@@ -343,44 +627,46 @@ const OffersRewards = ({ collapsed, setCollapsed }) => {
                 + Create Offer
               </button>
 
-              {/* Modal */}
+              {/* Create Offer Modal */}
               {showOfferModal && (
                 <div
                   style={{
                     position: "fixed",
-                    top: "0",
-                    left: "0",
-                    width: "100%",
-                    height: "100%",
+                    inset: 0,
                     backgroundColor: "rgba(0,0,0,0.5)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     zIndex: 1000,
+                    padding: "15px",
                   }}
                 >
                   <div
                     style={{
                       backgroundColor: "#fff",
-                      padding: "20px",
-                      borderRadius: "10px",
-                      width: "500px",
+                      padding: "30px",
+                      borderRadius: "12px",
+                      width: "600px",
+                      maxWidth: "100%",
+                      maxHeight: "90vh",
+                      overflowY: "auto",
                       boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-                      position: "relative", // ✅ for cross positioning
+                      position: "relative",
+                      boxSizing: "border-box",
                     }}
                   >
-                    {/* Cross (×) top-right */}
+                    {/* Close */}
                     <span
+                      onClick={() => setShowOfferModal(false)}
                       style={{
                         position: "absolute",
-                        top: "10px",
-                        right: "15px",
-                        fontSize: "22px",
+                        top: "15px",
+                        right: "20px",
+                        fontSize: "28px",
                         fontWeight: "bold",
-                        color: "#717070",
+                        color: "#777",
                         cursor: "pointer",
                       }}
-                      onClick={() => setShowOfferModal(false)} // ✅ close modal
                     >
                       ×
                     </span>
@@ -388,117 +674,201 @@ const OffersRewards = ({ collapsed, setCollapsed }) => {
                     <h2
                       style={{
                         color: "#1E3A5F",
-                        marginBottom: "15px",
-                        fontWeight: "bold",
-                        fontSize: "25px",
+                        fontSize: "36px",
+                        fontWeight: "400",
+                        margin: "0 0 25px",
                       }}
                     >
-                      Create New Offer
+                      Create Offer
                     </h2>
 
                     {/* Offer Title */}
-                    <label style={{ fontWeight: "bold" }}>Offer Title</label>
+                    <label
+                      style={{
+                        display: "block",
+                        fontWeight: "bold",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      Offer Title
+                    </label>
                     <input
                       type="text"
-                      placeholder="e.g. 10% Off Your Next Visit"
+                      placeholder="e.g. Weekend Food Deal"
+                      value={offerData.title || ""}
+                      onChange={(e) =>
+                        setOfferData({ ...offerData, title: e.target.value })
+                      }
                       style={{
                         width: "100%",
-                        padding: "8px",
-                        marginBottom: "12px",
-                        borderRadius: "6px",
+                        padding: "14px 12px",
+                        marginBottom: "20px",
+                        borderRadius: "8px",
                         border: "1px solid #ddd",
+                        fontSize: "16px",
+                        boxSizing: "border-box",
                       }}
                     />
 
-                    {/* Business Dropdown */}
-                    <label style={{ fontWeight: "bold" }}>Business</label>
-                    <select
+                    {/* Description */}
+                    <label
                       style={{
-                        width: "100%",
-                        padding: "8px",
-                        marginBottom: "12px",
-                        borderRadius: "6px",
-                        border: "1px solid #ddd",
+                        display: "block",
+                        fontWeight: "bold",
+                        marginBottom: "10px",
                       }}
                     >
-                      <option>Select business</option>
-                      <option>Coffee Palace</option>
-                      <option>Fresh Eats</option>
-                      <option>The Gym Hub</option>
-                      <option>Bella Salon</option>
+                      Description
+                    </label>
+                    <textarea
+                      placeholder="Describe your offer"
+                      value={offerData.description || ""}
+                      onChange={(e) =>
+                        setOfferData({
+                          ...offerData,
+                          description: e.target.value,
+                        })
+                      }
+                      rows={3}
+                      style={{
+                        width: "100%",
+                        padding: "14px 12px",
+                        marginBottom: "20px",
+                        borderRadius: "8px",
+                        border: "1px solid #ddd",
+                        fontSize: "16px",
+                        boxSizing: "border-box",
+                        resize: "vertical",
+                      }}
+                    />
+
+                    {/* Offer Type */}
+                    <label
+                      style={{
+                        display: "block",
+                        fontWeight: "bold",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      Offer Type
+                    </label>
+                    <select
+                      value={offerData.type || ""}
+                      onChange={(e) =>
+                        setOfferData({ ...offerData, type: e.target.value })
+                      }
+                      style={{
+                        width: "100%",
+                        padding: "14px 12px",
+                        marginBottom: "20px",
+                        borderRadius: "8px",
+                        border: "1px solid #ddd",
+                        fontSize: "16px",
+                        boxSizing: "border-box",
+                      }}
+                    >
+                      <option value="">Select Type</option>
+                      <option value="Discount">Discount</option>
+                      <option value="Free Item">Free Item</option>
+                      <option value="Bogo">Bogo</option>
                     </select>
 
-                    {/* Offer Type + Visits Required Row */}
+                    {/* Discount Value */}
+                    <label
+                      style={{
+                        display: "block",
+                        fontWeight: "bold",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      Discount Value
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      placeholder="e.g. 20"
+                      value={offerData.discount_value || ""}
+                      onChange={(e) =>
+                        setOfferData({
+                          ...offerData,
+                          discount_value: e.target.value,
+                        })
+                      }
+                      style={{
+                        width: "100%",
+                        padding: "14px 12px",
+                        marginBottom: "20px",
+                        borderRadius: "8px",
+                        border: "1px solid #ddd",
+                        fontSize: "16px",
+                        boxSizing: "border-box",
+                      }}
+                    />
+
+                    {/* Expiry Date */}
+                    <label
+                      style={{
+                        display: "block",
+                        fontWeight: "bold",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      Expiry Date
+                    </label>
+                    <input
+                      type="date"
+                      value={offerData.expiry_date || ""}
+                      onChange={(e) =>
+                        setOfferData({
+                          ...offerData,
+                          expiry_date: e.target.value,
+                        })
+                      }
+                      style={{
+                        width: "100%",
+                        padding: "14px 12px",
+                        marginBottom: "25px",
+                        borderRadius: "8px",
+                        border: "1px solid #ddd",
+                        fontSize: "16px",
+                        boxSizing: "border-box",
+                      }}
+                    />
+
+                    {/* Buttons */}
                     <div
                       style={{
                         display: "flex",
+                        justifyContent: "flex-end",
                         gap: "12px",
-                        marginBottom: "12px",
                       }}
-                    >
-                      <div style={{ flex: 1 }}>
-                        <label style={{ fontWeight: "bold" }}>Offer Type</label>
-                        <select
-                          style={{
-                            width: "100%",
-                            padding: "8px",
-                            borderRadius: "6px",
-                            border: "1px solid #ddd",
-                          }}
-                        >
-                          <option>Type</option>
-                          <option>Discount</option>
-                          <option>Free Item</option>
-                          <option>Bogo</option>
-                        </select>
-                      </div>
-
-                      <div style={{ flex: 1 }}>
-                        <label style={{ fontWeight: "bold" }}>
-                          Visits Required
-                        </label>
-                        <input
-                          type="number"
-                          placeholder="e.g. 5"
-                          style={{
-                            width: "100%",
-                            padding: "8px",
-                            borderRadius: "6px",
-                            border: "1px solid #ddd",
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Expiry Date */}
-                    <label style={{ fontWeight: "bold" }}>Expiry Date</label>
-                    <input
-                      type="date"
-                      placeholder="dd/mm/yyyy"
-                      style={{
-                        width: "100%",
-                        padding: "8px",
-                        marginBottom: "20px",
-                        borderRadius: "6px",
-                        border: "1px solid #ddd",
-                      }}
-                    />
-
-                    {/* Only Create Offer Button */}
-                    <div
-                      style={{ display: "flex", justifyContent: "flex-end" }}
                     >
                       <button
+                        onClick={() => setShowOfferModal(false)}
                         style={{
+                          padding: "12px 22px",
+                          borderRadius: "8px",
+                          border: "1px solid #ddd",
+                          background: "#fff",
+                          cursor: "pointer",
+                          fontSize: "16px",
+                        }}
+                      >
+                        Cancel
+                      </button>
+
+                      <button
+                        onClick={handleSaveOffer}
+                        style={{
+                          padding: "12px 25px",
+                          borderRadius: "8px",
+                          border: "none",
                           background:
                             "linear-gradient(90deg, #1E3A5F, #1FA2C9)",
                           color: "#fff",
-                          padding: "10px 185px",
-                          borderRadius: "6px",
-                          border: "none",
+                          fontWeight: "bold",
                           cursor: "pointer",
-                          textAlign: "center",
-                          alignItems: "center",
+                          fontSize: "16px",
                         }}
                       >
                         Create Offer
@@ -563,6 +933,215 @@ const OffersRewards = ({ collapsed, setCollapsed }) => {
             </div>
           </div>
 
+          {/* =========================
+    EDIT OFFER MODAL
+========================= */}
+
+          {editingOffer && (
+            <div
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                backgroundColor: "rgba(0,0,0,0.5)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                zIndex: 2000,
+              }}
+            >
+              <div
+                style={{
+                  backgroundColor: "#fff",
+                  padding: "25px",
+                  borderRadius: "10px",
+                  width: "500px",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+                  position: "relative",
+                }}
+              >
+                {/* Close */}
+                <span
+                  onClick={() => setEditingOffer(null)}
+                  style={{
+                    position: "absolute",
+                    top: "10px",
+                    right: "15px",
+                    fontSize: "25px",
+                    fontWeight: "bold",
+                    color: "#717070",
+                    cursor: "pointer",
+                  }}
+                >
+                  ×
+                </span>
+
+                <h2
+                  style={{
+                    color: "#1E3A5F",
+                    marginBottom: "20px",
+                  }}
+                >
+                  Edit Offer
+                </h2>
+
+                {/* Title */}
+                <label style={{ fontWeight: "bold" }}>Offer Title</label>
+
+                <input
+                  type="text"
+                  value={editForm.title}
+                  onChange={(e) =>
+                    setEditForm({
+                      ...editForm,
+                      title: e.target.value,
+                    })
+                  }
+                  style={{
+                    width: "100%",
+                    padding: "10px",
+                    marginTop: "6px",
+                    marginBottom: "15px",
+                    borderRadius: "6px",
+                    border: "1px solid #ddd",
+                  }}
+                />
+
+                {/* Description */}
+                <label style={{ fontWeight: "bold" }}>Description</label>
+
+                <textarea
+                  value={editForm.description}
+                  onChange={(e) =>
+                    setEditForm({
+                      ...editForm,
+                      description: e.target.value,
+                    })
+                  }
+                  style={{
+                    width: "100%",
+                    padding: "10px",
+                    marginTop: "6px",
+                    marginBottom: "15px",
+                    borderRadius: "6px",
+                    border: "1px solid #ddd",
+                    minHeight: "80px",
+                    resize: "vertical",
+                  }}
+                />
+
+                {/* Offer Type */}
+                <label style={{ fontWeight: "bold" }}>Offer Type</label>
+
+                <select
+                  value={editForm.offer_type}
+                  onChange={(e) =>
+                    setEditForm({
+                      ...editForm,
+                      offer_type: e.target.value,
+                    })
+                  }
+                  style={{
+                    width: "100%",
+                    padding: "10px",
+                    marginTop: "6px",
+                    marginBottom: "15px",
+                    borderRadius: "6px",
+                    border: "1px solid #ddd",
+                  }}
+                >
+                  <option value="">Select Type</option>
+                  <option value="Discount">Discount</option>
+                  <option value="Free Item">Free Item</option>
+                  <option value="Bogo">Bogo</option>
+                </select>
+
+                {/* Discount Value */}
+                <label style={{ fontWeight: "bold" }}>Discount Value</label>
+
+                <input
+                  type="number"
+                  value={editForm.discount_value}
+                  onChange={(e) =>
+                    setEditForm({
+                      ...editForm,
+                      discount_value: e.target.value,
+                    })
+                  }
+                  style={{
+                    width: "100%",
+                    padding: "10px",
+                    marginTop: "6px",
+                    marginBottom: "15px",
+                    borderRadius: "6px",
+                    border: "1px solid #ddd",
+                  }}
+                />
+
+                {/* Expiry */}
+                <label style={{ fontWeight: "bold" }}>Expiry Date</label>
+
+                <input
+                  type="date"
+                  value={editForm.expiry_date}
+                  onChange={(e) =>
+                    setEditForm({
+                      ...editForm,
+                      expiry_date: e.target.value,
+                    })
+                  }
+                  style={{
+                    width: "100%",
+                    padding: "10px",
+                    marginTop: "6px",
+                    marginBottom: "20px",
+                    borderRadius: "6px",
+                    border: "1px solid #ddd",
+                  }}
+                />
+
+                {/* Buttons */}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    gap: "10px",
+                  }}
+                >
+                  <button
+                    onClick={() => setEditingOffer(null)}
+                    style={{
+                      padding: "10px 20px",
+                      borderRadius: "6px",
+                      border: "1px solid #ddd",
+                      backgroundColor: "#fff",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    onClick={handleUpdateOffer}
+                    style={{
+                      background: "linear-gradient(90deg, #1E3A5F, #1FA2C9)",
+                      color: "#fff",
+                      padding: "10px 25px",
+                      borderRadius: "6px",
+                      border: "none",
+                      cursor: "pointer",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Cards Grid */}
           <div
             style={{
@@ -621,6 +1200,7 @@ const OffersRewards = ({ collapsed, setCollapsed }) => {
                       onChange={() => handleToggle(index)} // ✅ toggle handler
                       style={{ opacity: 0, width: 0, height: 0 }}
                     />
+
                     <span
                       style={{
                         position: "absolute",
@@ -650,9 +1230,10 @@ const OffersRewards = ({ collapsed, setCollapsed }) => {
                 </div>
 
                 {/* Title */}
+                {/* Title */}
                 <h3
                   style={{
-                    margin: "10px 0",
+                    margin: "10px 0 5px",
                     color: "#0E2A47",
                     fontWeight: "bold",
                     fontSize: "20px",
@@ -660,6 +1241,17 @@ const OffersRewards = ({ collapsed, setCollapsed }) => {
                 >
                   {offer.title}
                 </h3>
+
+                {/* Description */}
+                <p
+                  style={{
+                    color: "#717070",
+                    margin: "0 0 15px",
+                    fontSize: "14px",
+                  }}
+                >
+                  {offer.description}
+                </p>
 
                 {/* Business + Icons */}
                 <div
@@ -720,35 +1312,37 @@ const OffersRewards = ({ collapsed, setCollapsed }) => {
                   }}
                 >
                   <button
+                    onClick={() => handleEdit(offer)}
                     style={{
                       backgroundColor: "#fff",
                       color: "#1E3A5F",
-                      padding: "12px 120px",
+                      padding: "12px 30px",
                       borderRadius: "6px",
                       border: "1px solid #ddd",
                       cursor: "pointer",
                       display: "flex",
                       alignItems: "center",
                       gap: "6px",
-                      textAlign: "center",
                     }}
                   >
                     <FaEdit /> Edit
                   </button>
-                  <div
+                  <button
+                    onClick={() => handleDelete(offer)}
                     style={{
                       border: "1px solid #ddd",
                       borderRadius: "6px",
-                      padding: "8px",
+                      padding: "10px",
                       cursor: "pointer",
                       color: "red",
+                      backgroundColor: "#fff",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                     }}
                   >
                     <FaTrash />
-                  </div>
+                  </button>
                 </div>
               </div>
             ))}
@@ -973,7 +1567,14 @@ const OffersRewards = ({ collapsed, setCollapsed }) => {
                         gap: "10px",
                       }}
                     >
-                      <h3 style={{ color: "#1E3A5F", margin: 0, fontWeight:"bold",fontSize:"25px" }}>
+                      <h3
+                        style={{
+                          color: "#1E3A5F",
+                          margin: 0,
+                          fontWeight: "bold",
+                          fontSize: "25px",
+                        }}
+                      >
                         {reward.tier}
                       </h3>
 

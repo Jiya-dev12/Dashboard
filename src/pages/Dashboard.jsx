@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   FaUser,
   FaBuilding,
@@ -10,6 +10,7 @@ import {
   FaClock,
   FaBars,
 } from "react-icons/fa";
+
 import {
   LineChart,
   Line,
@@ -24,6 +25,7 @@ import {
   Cell,
 } from "recharts";
 import { BarChart, Bar } from "recharts";
+import { supabase } from "../supabase";
 
 const lineData = [
   { month: "Jan", visits: 4000, rewards: 2400 },
@@ -42,6 +44,82 @@ const pieData = [
 const COLORS = ["#1E3A5F", "#FF9800", "#9E9E9E"];
 
 const Dashboard = ({ collapsed, setCollapsed }) => {
+  const [totalCustomers, setTotalCustomers] = useState(0);
+  const [totalBusinesses, setTotalBusinesses] = useState(0);
+  const [totalOffers, setTotalOffers] = useState(0);
+  const [totalCards, setTotalCards] = useState(0);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      // =========================
+      // TOTAL CUSTOMERS
+      // =========================
+      const { data: customerData, error: customerError } =
+        await supabase.functions.invoke("rapid-function");
+
+      if (customerError) {
+        console.error("CUSTOMERS ERROR:", customerError);
+      } else {
+        console.log("CUSTOMERS DATA:", customerData);
+
+        const customerUsers = customerData?.users || [];
+
+        setTotalCustomers(customerUsers.length);
+      }
+
+      // =========================
+      // TOTAL BUSINESSES
+      // =========================
+      const { data: businesses, error: businessError } = await supabase
+        .from("business")
+        .select("business_id");
+
+      if (businessError) {
+        console.error("BUSINESS ERROR:", businessError);
+      } else {
+        console.log("BUSINESS DATA:", businesses);
+
+        setTotalBusinesses(businesses?.length || 0);
+      }
+
+      // =========================
+      // TOTAL OFFERS
+      // =========================
+      const { data: offers, error: offersError } = await supabase
+        .from("offers")
+        .select("offer_id");
+
+      if (offersError) {
+        console.error("OFFERS ERROR:", offersError);
+      } else {
+        console.log("OFFERS DATA:", offers);
+
+        setTotalOffers(offers?.length || 0);
+      }
+
+      // =========================
+      // TOTAL CARDS
+      // =========================
+      const { data: cards, error: cardsError } = await supabase
+        .from("card")
+        .select("card_id");
+
+      if (cardsError) {
+        console.error("CARDS ERROR:", cardsError);
+      } else {
+        console.log("CARDS DATA:", cards);
+
+        setTotalCards(cards?.length || 0);
+      }
+    } catch (error) {
+      console.error("DASHBOARD DATA ERROR:", error);
+    }
+  };
+
   return (
     <div
       style={{
@@ -213,14 +291,14 @@ const Dashboard = ({ collapsed, setCollapsed }) => {
               marginBottom: "8px",
             }}
           >
-            12,480
+            {totalCustomers}
           </p>
           <p style={{ color: "green", fontWeight: "bold", fontSize: "14px" }}>
-            ↑ +8.2% vs last month
+            All customers
           </p>
         </div>
 
-        {/* Active Businesses */}
+        {/* Total Businesses */}
 
         <div
           style={{
@@ -252,7 +330,7 @@ const Dashboard = ({ collapsed, setCollapsed }) => {
               fontSize: "18px",
             }}
           >
-            Active Businesses
+            Total Businesses
           </h5>
           <p
             style={{
@@ -262,14 +340,14 @@ const Dashboard = ({ collapsed, setCollapsed }) => {
               marginBottom: "8px",
             }}
           >
-            184
+            {totalBusinesses}
           </p>
           <p style={{ color: "green", fontWeight: "bold", fontSize: "14px" }}>
-            ↑ +5.1% vs last month
+            All businesses
           </p>
         </div>
 
-        {/* Total Visits */}
+        {/* Total Offers */}
         <div
           style={{
             backgroundColor: "#fff",
@@ -300,7 +378,7 @@ const Dashboard = ({ collapsed, setCollapsed }) => {
               fontWeight: "bold",
             }}
           >
-            Total Visits (QR)
+            Total Offers
           </h5>
           <p
             style={{
@@ -310,14 +388,14 @@ const Dashboard = ({ collapsed, setCollapsed }) => {
               marginBottom: "8px",
             }}
           >
-            48,320
+            {totalOffers}
           </p>
           <p style={{ color: "green", fontWeight: "bold", fontSize: "14px" }}>
-            ↑ +12.4% vs last month
+            All offers
           </p>
         </div>
 
-        {/* Rewards Redeemed */}
+        {/* Total Cards */}
         <div
           style={{
             backgroundColor: "#fff",
@@ -349,7 +427,7 @@ const Dashboard = ({ collapsed, setCollapsed }) => {
               fontSize: "18px",
             }}
           >
-            Rewards Redeemed
+            Total Cards
           </h5>
           <p
             style={{
@@ -359,10 +437,10 @@ const Dashboard = ({ collapsed, setCollapsed }) => {
               marginBottom: "8px",
             }}
           >
-            6,710
+            {totalCards}
           </p>
           <p style={{ color: "red", fontWeight: "bold", fontSize: "14px" }}>
-            ↓ -2.3% vs last month
+            All cards
           </p>
         </div>
       </div>
@@ -497,12 +575,10 @@ const Dashboard = ({ collapsed, setCollapsed }) => {
             <BarChart
               layout="vertical"
               data={[
-                { name: "Coffee Palace", visits: 842 },
-                { name: "Fresh Eats", visits: 720 },
-                { name: "Gym Hub", visits: 615 },
-                { name: "Bella Salon", visits: 530 },
-                { name: "Tea House", visits: 180 },
-                { name: "Burger World", visits: 130 },
+                { name: "Montano", visits: 842 },
+                { name: "Saqafat Bakery", visits: 720 },
+                { name: "Cafe Deligh", visits: 615 },
+                { name: "Salon", visits: 530 },
               ]}
               margin={{ top: 20, right: 30, left: 40, bottom: 5 }}
             >
@@ -591,8 +667,8 @@ const Dashboard = ({ collapsed, setCollapsed }) => {
                       gap: "6px",
                     }}
                   >
-                    <FaMapMarkerAlt style={{ color: "#1E3A5F" }} /> Coffee
-                    Palace
+                    <FaMapMarkerAlt style={{ color: "#1E3A5F" }} />
+                    Saqafat Bakery
                   </span>
                   <span
                     style={{
@@ -655,7 +731,7 @@ const Dashboard = ({ collapsed, setCollapsed }) => {
                       gap: "6px",
                     }}
                   >
-                    <FaMapMarkerAlt style={{ color: "#1E3A5F" }} /> Fresh Eats
+                    <FaMapMarkerAlt style={{ color: "#1E3A5F" }} /> Cafe Deligh
                   </span>
                   <span
                     style={{
@@ -766,8 +842,8 @@ const Dashboard = ({ collapsed, setCollapsed }) => {
                       gap: "6px",
                     }}
                   >
-                    <FaMapMarkerAlt style={{ color: "#1E3A5F" }} /> Coffee
-                    Palace
+                    <FaMapMarkerAlt style={{ color: "#1E3A5F" }} />
+                    Salon
                   </span>
                   <span
                     style={{
@@ -777,134 +853,6 @@ const Dashboard = ({ collapsed, setCollapsed }) => {
                     }}
                   >
                     <FaClock style={{ color: "#1E3A5F" }} /> 1 hr ago
-                  </span>
-                </p>
-              </div>
-            </li>
-
-            {/* Raza H. */}
-            <li
-              style={{
-                backgroundColor: "#fff",
-                padding: "12px 15px",
-                borderRadius: "8px",
-                boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
-                marginBottom: "10px",
-                display: "flex",
-                alignItems: "center",
-                gap: "12px",
-              }}
-            >
-              <div
-                style={{
-                  width: "32px",
-                  height: "32px",
-                  borderRadius: "50%",
-                  backgroundColor: "#3F51B5", // indigo circle
-                  color: "#fff",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontWeight: "bold",
-                }}
-              >
-                R
-              </div>
-              <div>
-                <p style={{ margin: 0, fontWeight: "bold", color: "#333" }}>
-                  Raza H. — Claimed loyalty reward
-                </p>
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: "13px",
-                    color: "#777",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "12px", // ✅ thodi si extra space icons aur text ke darmiyan
-                  }}
-                >
-                  <span
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "6px",
-                    }}
-                  >
-                    <FaMapMarkerAlt style={{ color: "#1E3A5F" }} /> Glow Spa
-                  </span>
-                  <span
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "6px",
-                    }}
-                  >
-                    <FaClock style={{ color: "#1E3A5F" }} /> 2 hrs ago
-                  </span>
-                </p>
-              </div>
-            </li>
-
-            {/* Lara S. */}
-            <li
-              style={{
-                backgroundColor: "#fff",
-                padding: "12px 15px",
-                borderRadius: "8px",
-                boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
-                marginBottom: "10px",
-                display: "flex",
-                alignItems: "center",
-                gap: "12px",
-              }}
-            >
-              <div
-                style={{
-                  width: "32px",
-                  height: "32px",
-                  borderRadius: "50%",
-                  backgroundColor: "#009688", // teal circle
-                  color: "#fff",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontWeight: "bold",
-                }}
-              >
-                L
-              </div>
-              <div>
-                <p style={{ margin: 0, fontWeight: "bold", color: "#333" }}>
-                  Lara S. — Purchased premium membership
-                </p>
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: "13px",
-                    color: "#777",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "12px", // ✅ thodi si extra space icons aur text ke darmiyan
-                  }}
-                >
-                  <span
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "6px",
-                    }}
-                  >
-                    <FaMapMarkerAlt style={{ color: "#1E3A5F" }} /> Tech Fix Pro
-                  </span>
-                  <span
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "6px",
-                    }}
-                  >
-                    <FaClock style={{ color: "#1E3A5F" }} /> 3 hrs ago
                   </span>
                 </p>
               </div>

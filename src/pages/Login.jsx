@@ -2,22 +2,63 @@ import bgImg from "../assets/images/bg.png";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import React, { useState } from "react";
+import { supabase } from "../supabase";
+import { useDispatch } from "react-redux";
+import { setUser } from "../redux/Slices/HomeDataSlice"; // ✅ apni slice ka path
+
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const dispatch = useDispatch();
+
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+
+const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email || !password) {
-      alert("Please fill out these fields");
-      return;
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        alert("Login Failed: " + error.message);
+        return;
+      }
+
+      const user = data.user;
+
+      // ✅ Email verification check
+      if (!user.email_confirmed_at) {
+        alert("Please verify your email before continuing.");
+        await supabase.auth.signOut();
+        return;
+      }
+
+      // ✅ Role metadata
+      const role = user.user_metadata?.role || "default";
+
+      // ✅ Save to Redux
+      dispatch(
+        setUser({
+          id: user.id,
+          email: user.email,
+          role: role,
+        })
+      );
+
+      // ✅ Navigate after Redux update
+      navigate("/AdminHome");
+    } catch (err) {
+      alert("Error: " + err.message);
     }
-    // agar sab filled hai to AdminHome page par navigate karo
-    navigate("/AdminHome");
   };
+
+ 
 
   return (
     <div
